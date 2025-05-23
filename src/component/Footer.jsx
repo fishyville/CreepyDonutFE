@@ -42,7 +42,7 @@ export default function Footer() {
             <ul className="space-y-3">
               {helpLinks.map((link, index) => (
                 <li key={index}>
-                  <a href="#" className="text-sm text-[#060606] hover:text-[#4a2b1b] transition-colors">
+                  <a href="#" className="text-sm text-[#060606] hover:text-[#EB7C7B] transition-colors">
                     {link}
                   </a>
                 </li>
@@ -57,7 +57,7 @@ export default function Footer() {
             <ul className="space-y-3">
               {storeLinks.map((link, index) => (
                 <li key={index}>
-                  <a href="#" className="text-sm text-[#060606] hover:text-[#4a2b1b] transition-colors">
+                  <a href="#" className="text-sm text-[#060606] hover:text-[#EB7C7B] transition-colors">
                     {link}
                   </a>
                 </li>
@@ -78,7 +78,7 @@ export default function Footer() {
                       href={item.link} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="text-sm text-[#060606] hover:text-[#4a2b1b] transition-colors"
+                      className="text-sm text-[#060606] hover:text-[#EB7C7B] transition-colors"
                     >
                       {item.text}
                     </a>
@@ -98,8 +98,8 @@ export default function Footer() {
               {socialLinks.map((social, index) => (
                 <a
                   key={index}
-                  href="#"
-                  className="w-8 h-8 bg-[#4a2b1b] rounded-full flex items-center justify-center hover:bg-opacity-80 transition-all"
+                  href="https://www.instagram.com/sussus_jo/"
+                  className="w-8 h-8 bg-[#4a2b1b] rounded-full flex items-center justify-center hover:bg-[#EB7C7B] transition-all"
                   aria-label={social.label}
                 >
                   {social.icon}
