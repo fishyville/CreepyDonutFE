@@ -1,27 +1,20 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 import './App.css';
-import Navbar from '../component/Navbar'; // Import the Navbar component
+import Navbar from '../component/Navbar';
+import Footer from '../component/Footer';
 
-function App() {
+function Home() {
   return (
-    <>
-      {/* Add the Navbar component at the top */}
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      
-      {/* Your existing content */}
-      <div className="p-8">
+      <div className="flex-1 p-8">
         <h1 className="text-3xl font-bold">
           Hello world!
         </h1>
       </div>
-    </>
+      <Footer />
+    </div>
   );
 }
 
-const root = document.getElementById('root');
-createRoot(root).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+export default Home;
