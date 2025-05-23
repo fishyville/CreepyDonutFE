@@ -1,168 +1,128 @@
-import { Separator } from "@/components/ui/separator";
-import { Copyright, Mail, MapPin, Phone } from "lucide-react";
-import React from "react";
+import React from 'react';
+import { Copyright, Facebook, InstagramIcon, MessageSquare, Video, Mail, MapPin, Phone } from 'lucide-react';
 
-export default function FooterSection() {
-  // Data for footer sections to enable mapping
-  const getHelpLinks = [
-    { title: "FAQ", href: "#" },
-    { title: "Our Service", href: "#" },
-    { title: "About Us", href: "#" },
-    { title: "Order Status", href: "#" },
+export default function Footer() {
+  const socialLinks = [
+    { icon: <InstagramIcon className="w-5 h-5 text-[#f2d9b1]" />, label: "Instagram" },
+    { icon: <MessageSquare className="w-5 h-5 text-[#f2d9b1]" />, label: "Discord" },
+    { icon: <Video className="w-5 h-5 text-[#f2d9b1]" />, label: "TikTok" },
+    { icon: <Facebook className="w-5 h-5 text-[#f2d9b1]" />, label: "Facebook" },
   ];
 
-  const creepyStoreLinks = [
-    { title: "Store Events", href: "#" },
-    { title: "Store Hours", href: "#" },
-    { title: "Creepy Store Supports", href: "#" },
-    { title: "Seasonal Specials", href: "#" },
-  ];
+  const helpLinks = ["FAQ", "Our Service", "About Us", "Order Status"];
+  const storeLinks = ["Store Events", "Store Hours", "Creepy Store Supports", "Seasonal Specials"];
 
   const contactInfo = [
-    {
-      icon: <Mail className="w-4.5 h-3.5" />,
-      text: "creepydonut@gmail.com",
-      href: "mailto:creepydonut@gmail.com",
-    },
-    {
-      icon: <Phone className="w-4 h-[15px]" />,
-      text: "+62 81 1776 1151",
-      href: "tel:+6281177611511",
-    },
-    {
-      icon: <MapPin className="w-3.5 h-[18px]" />,
+    { icon: <Mail className="w-4 h-4" />, text: "creepydonut@gmail.com" },
+    { icon: <Phone className="w-4 h-4" />, text: "+62 81 1776 1151" },
+    { 
+      icon: <MapPin className="w-4 h-4" />, 
       text: "Aditana Residence, Kota Tangerang",
-      href: "https://maps.app.goo.gl/XC1RGcd3Jz29gRQA7",
+      link: "https://maps.app.goo.gl/XC1RGcd3Jz29gRQA7"
     },
-  ];
-
-  const socialLinks = [
-    { name: "Instagram", href: "#", icon: "instagram-1.png" },
-    { name: "Discord", href: "#", icon: "discord-1-1.png" },
-    { name: "TikTok", href: "#", icon: "tik-tok-1-1.png" },
-    { name: "Facebook", href: "#", icon: "facebook-app-symbol-1.png" },
   ];
 
   return (
-    <footer className="w-full bg-[#f2d9b1] rounded-[var(--shape-corner-medium)]">
-      <div className="relative w-full">
-        {/* Main footer content */}
-        <div className="flex flex-wrap px-12 py-16 gap-x-16">
-          {/* Brand section */}
-          <div className="flex flex-col space-y-4 w-[183px]">
-            <h3 className="font-bold text-2xl text-[#4a2b1b] font-['Kantumruy-Bold',Helvetica]">
-              CreepyDonut
-            </h3>
-            <Separator className="w-[70px] h-[3px] bg-[#4a2b1b]" />
-            <p className="text-sm text-black font-['Kantumruy-Regular',Helvetica]">
-              The donut that stares back.
-            </p>
+    <div className="w-full bg-[#f2d9b1] overflow-hidden">
+      {/* Main Footer Content */}
+      <div className="px-12 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+          
+          {/* Brand Section */}
+          <div className="md:col-span-1">
+            <h2 className="text-2xl font-bold text-[#4a2b1b] mb-3">CreepyDonut</h2>
+            <div className="w-16 h-1 bg-[#4a2b1b] mb-4"></div>
+            <p className="text-sm text-black">The donut that stares back.</p>
           </div>
 
-          {/* Get Help section */}
-          <div className="flex flex-col space-y-4 w-[106px]">
-            <h3 className="font-bold text-2xl text-[#4a2b1b] font-['Kantumruy-Bold',Helvetica]">
-              Get Help
-            </h3>
-            <Separator className="w-[70px] h-[3px] bg-[#4a2b1b]" />
-            <nav className="flex flex-col space-y-3">
-              {getHelpLinks.map((link, index) => (
-                <a
-                  key={index}
-                  href={link.href}
-                  className="text-sm text-[#060606] font-['Kantumruy-Regular',Helvetica]"
-                >
-                  {link.title}
-                </a>
+          {/* Get Help Section */}
+          <div className="md:col-span-1">
+            <h3 className="text-2xl font-bold text-[#4a2b1b] mb-3">Get Help</h3>
+            <div className="w-16 h-1 bg-[#4a2b1b] mb-4"></div>
+            <ul className="space-y-3">
+              {helpLinks.map((link, index) => (
+                <li key={index}>
+                  <a href="#" className="text-sm text-[#060606] hover:text-[#4a2b1b] transition-colors">
+                    {link}
+                  </a>
+                </li>
               ))}
-            </nav>
+            </ul>
           </div>
 
-          {/* Creepy Store section */}
-          <div className="flex flex-col space-y-4 w-[154px]">
-            <h3 className="font-bold text-2xl text-[#4a2b1b] font-['Kantumruy-Bold',Helvetica]">
-              Creepy Store
-            </h3>
-            <Separator className="w-[70px] h-[3px] bg-[#4a2b1b]" />
-            <nav className="flex flex-col space-y-3">
-              {creepyStoreLinks.map((link, index) => (
-                <a
-                  key={index}
-                  href={link.href}
-                  className="text-sm text-[#060606] font-['Kantumruy-Regular',Helvetica]"
-                >
-                  {link.title}
-                </a>
+          {/* Creepy Store Section */}
+          <div className="md:col-span-1">
+            <h3 className="text-2xl font-bold text-[#4a2b1b] mb-3">Creepy Store</h3>
+            <div className="w-16 h-1 bg-[#4a2b1b] mb-4"></div>
+            <ul className="space-y-3">
+              {storeLinks.map((link, index) => (
+                <li key={index}>
+                  <a href="#" className="text-sm text-[#060606] hover:text-[#4a2b1b] transition-colors">
+                    {link}
+                  </a>
+                </li>
               ))}
-            </nav>
+            </ul>
           </div>
 
-          {/* Contact Us section */}
-          <div className="flex flex-col space-y-4 w-[132px]">
-            <h3 className="font-bold text-2xl text-[#4a2b1b] font-['Kantumruy-Bold',Helvetica]">
-              Contact Us
-            </h3>
-            <Separator className="w-[70px] h-[3px] bg-[#4a2b1b]" />
-            <div className="flex flex-col space-y-3">
+          {/* Contact Us Section */}
+          <div className="md:col-span-1">
+            <h3 className="text-2xl font-bold text-[#4a2b1b] mb-3">Contact Us</h3>
+            <div className="w-16 h-1 bg-[#4a2b1b] mb-4"></div>
+            <ul className="space-y-4">
               {contactInfo.map((item, index) => (
-                <a
-                  key={index}
-                  href={item.href}
-                  className="flex items-start gap-2"
-                  rel={
-                    item.href.startsWith("https")
-                      ? "noopener noreferrer"
-                      : undefined
-                  }
-                  target={item.href.startsWith("https") ? "_blank" : undefined}
-                >
-                  <span className="mt-1 text-[#060606]">{item.icon}</span>
-                  <span className="text-sm text-[#060606] font-['Kantumruy-Regular',Helvetica]">
-                    {item.text}
-                  </span>
-                </a>
+                <li key={index} className="flex items-center space-x-3">
+                  <span className="text-[#060606]">{item.icon}</span>
+                  {item.link ? (
+                    <a 
+                      href={item.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-sm text-[#060606] hover:text-[#4a2b1b] transition-colors"
+                    >
+                      {item.text}
+                    </a>
+                  ) : (
+                    <span className="text-sm text-[#060606]">{item.text}</span>
+                  )}
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
-          {/* Follow Us section */}
-          <div className="flex flex-col space-y-4 w-[116px]">
-            <h3 className="font-bold text-2xl text-[#4a2b1b] font-['Kantumruy-Bold',Helvetica]">
-              Follow Us
-            </h3>
-            <Separator className="w-[70px] h-[3px] bg-[#4a2b1b]" />
-            <div className="flex space-x-3 mt-2">
+          {/* Follow Us Section */}
+          <div className="md:col-span-1">
+            <h3 className="text-2xl font-bold text-[#4a2b1b] mb-3">Follow Us</h3>
+            <div className="w-16 h-1 bg-[#4a2b1b] mb-4"></div>
+            <div className="flex space-x-3">
               {socialLinks.map((social, index) => (
                 <a
                   key={index}
-                  href={social.href}
-                  className="flex items-center justify-center w-[30px] h-[30px] bg-[#4a2b1b] rounded-[15px]"
-                  aria-label={social.name}
+                  href="#"
+                  className="w-8 h-8 bg-[#4a2b1b] rounded-full flex items-center justify-center hover:bg-opacity-80 transition-all"
+                  aria-label={social.label}
                 >
-                  <img
-                    src={social.icon}
-                    alt={social.name}
-                    className="w-5 h-5 object-cover"
-                  />
+                  {social.icon}
                 </a>
               ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer bottom bar */}
-        <div className="w-full h-[90px] bg-[#813939]">
-          <div className="flex items-center justify-between h-full px-10">
-            <div className="font-bold text-xl text-[#f2d9b1] font-['Montserrat-Bold',Helvetica]">
-              THE DONUTS
-            </div>
-            <div className="flex items-center text-[#f2d9b1] font-['Kantumruy-Regular',Helvetica] text-base">
-              <Copyright className="w-3.5 h-3.5 mr-1" />
-              <span>2024 CreepyDonut — Sugar &amp; nightmares included</span>
             </div>
           </div>
         </div>
       </div>
-    </footer>
+
+      {/* Footer Banner */}
+      <div className="bg-[#4a2b1b] px-12 py-6">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="text-xl font-bold text-[#f2d9b1] mb-4 md:mb-0">
+            THE DONUTS
+          </div>
+          
+          <div className="flex items-center space-x-2 text-[#f2d9b1]">
+            <Copyright className="w-4 h-4" />
+            <span className="text-base">2024 CreepyDonut — Sugar & nightmares included</span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
