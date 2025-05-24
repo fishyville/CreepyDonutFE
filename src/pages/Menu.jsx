@@ -4,6 +4,11 @@ import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
 
 function Menu() {
+  // Get userId from localStorage
+  const userId = localStorage.getItem('userId');
+  console.log(userId);
+  // Now you can use userId in this component
+
   const [menuData, setMenuData] = useState({
     donut: [],
     drink: [],

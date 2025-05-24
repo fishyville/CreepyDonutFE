@@ -66,12 +66,7 @@ const Navbar = ({ cartCount = 0 }) => {
               {/* Menu */}
               <Link to="/menu" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">MENU</Link>
               {/* Fundraising */}
-              <a
-                href="#"
-                className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
-              >
-                FUNDRAISING
-              </a>
+              <Link to="/fundraising" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">FUNDRAISING</Link>
 
               {/* About Us */}
               <a
@@ -111,13 +106,19 @@ const Navbar = ({ cartCount = 0 }) => {
 
             {/* Auth buttons */}
             <div className="flex items-center space-x-2 text-sm">
-              <button className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+              <Link 
+                to="/login" 
+                className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
+              >
                 Login
-              </button>
+              </Link>
               <span className="text-gray-400">|</span>
-              <button className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
+              <Link 
+                to="/register" 
+                className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
+              >
                 Register
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -145,13 +146,20 @@ const Navbar = ({ cartCount = 0 }) => {
               <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md">
                 ABOUT US
               </a>
+              {/* Mobile menu auth links */}
               <div className="border-t border-amber-200 pt-3 mt-3">
-                <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md">
+                <Link 
+                  to="/login" 
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md"
+                >
                   Login
-                </a>
-                <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md">
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md"
+                >
                   Register
-                </a>
+                </Link>
               </div>
             </div>
           </div>
