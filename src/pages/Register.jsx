@@ -2,28 +2,25 @@ import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom'; // <-- Add this
 
-function Login() {
+function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate(); // <-- Add this
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
     try {
-      // Validate input
       if (!email || !password) {
         alert('Please enter both email and password.');
         return;
       }
 
-      // Prepare the request body
       const requestBody = {
         email,
         password,
       };
 
-      // Make the POST request to the API
-      const response = await fetch('https://localhost:7002/api/Users/login-email', {
+      const response = await fetch('https://localhost:7002/api/Users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,30 +28,22 @@ function Login() {
         body: JSON.stringify(requestBody),
       });
 
-      // Check the response status
       if (response.ok) {
-        // Successful login
-        const data = await response.json();
-        // Save userId to localStorage
-        localStorage.setItem('userId', data.userId);
-        // Navigate to Menu page
-        navigate('/home');
+        alert('Registration successful! Please log in.');
+        navigate('/login'); // <-- Redirect to login page
       } else {
-        // Handle errors
         const errorData = await response.json();
-        console.error('Login failed:', errorData);
-        alert('Login failed. Please check your credentials.');
+        alert(errorData.message || 'Registration failed.');
       }
     } catch (error) {
-      // Handle network or other errors
-      console.error('Error during login:', error);
       alert('An error occurred. Please try again later.');
+      console.error('Registration error:', error);
     }
   };
 
   const handleSocialLogin = (provider) => {
     // Add your social login logic here
-    console.log(`Login with ${provider}`);
+    console.log(`Register with ${provider}`);
   };
 
   return (
@@ -73,10 +62,10 @@ function Login() {
       <div className="absolute top-1/3 right-20 w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm"></div>
       <div className="absolute bottom-20 left-1/4 w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm"></div>
 
-      {/* Login Form Container */}
+      {/* Register Form Container */}
       <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 z-10">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Login</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">Register</h1>
         </div>
 
         <div className="space-y-6">
@@ -96,17 +85,8 @@ function Login() {
 
           {/* Password Input */}
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <div className="block text-sm font-medium text-gray-700">
-                Password
-              </div>
-              <button
-                type="button"
-                className="text-sm text-blue-500 hover:text-blue-600 transition-colors"
-                onClick={() => navigate('/reset')}
-              >
-                Forgot Password?
-              </button>
+            <div className="block text-sm font-medium text-gray-700 mb-2">
+              Password
             </div>
             <div className="relative">
               <input
@@ -126,19 +106,19 @@ function Login() {
             </div>
           </div>
 
-          {/* Login Button */}
+          {/* Register Button */}
           <button
-            onClick={handleLogin}
+            onClick={handleRegister}
             className="w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white font-semibold py-3 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.02] shadow-lg"
           >
-            LOGIN
+            REGISTER
           </button>
         </div>
 
         {/* Social Login Section */}
         <div className="mt-8">
           <div className="text-center mb-6">
-            <p className="text-gray-600 text-sm">Or Sign-in Using:</p>
+            <p className="text-gray-600 text-sm">Or Sign-up Using:</p>
           </div>
           
           <div className="flex justify-center space-x-4 mb-6">
@@ -186,14 +166,14 @@ function Login() {
             </button>
           </div>
 
-          {/* Sign Up Link */}
+          {/* Sign In Link */}
           <div className="text-center">
-            <p className="text-gray-600 text-sm mb-2">Or Sign-up Using:</p>
+            <p className="text-gray-600 text-sm mb-2">Or Sign-in Using:</p>
             <button
-              onClick={() => navigate('/register')}
+              onClick={() => navigate('/login')}
               className="text-blue-500 hover:text-blue-600 font-medium transition-colors"
             >
-              Sign-Up
+              Sign-In
             </button>
           </div>
         </div>
@@ -202,4 +182,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;
