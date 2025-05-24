@@ -4,6 +4,8 @@ import Home from './src/pages/Home';
 import Menu from './src/pages/Menu';
 import Login from './src/pages/Login';
 import Fundraising from './src/pages/Funraising';
+import Register from './src/pages/Register';
+import ResetPassword from './src/pages/ResetPassword';
 
 
 const AppRouter = () => {
@@ -14,6 +16,8 @@ const AppRouter = () => {
       <Route path="/menu" element={<Menu />} />
       <Route path="/login" element={<Login />} />
       <Route path="/fundraising" element={<Fundraising />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/reset" element={<ResetPassword />} />
     </Routes>
   );
 };
