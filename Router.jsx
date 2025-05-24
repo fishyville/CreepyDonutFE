@@ -3,9 +3,10 @@ import { Routes, Route } from 'react-router-dom';
 import Home from './src/pages/Home';
 import Menu from './src/pages/Menu';
 import Login from './src/pages/Login';
-import Fundraising from './src/pages/Funraising';
+import Fundraising from './src/pages/Fundraising';
 import Register from './src/pages/Register';
 import ResetPassword from './src/pages/ResetPassword';
+
 
 
 const AppRouter = () => {
