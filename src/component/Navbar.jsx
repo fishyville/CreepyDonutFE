@@ -1,10 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Menu, ChevronDown, Home, User, LogIn } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
-const Navbar = () => {
+const Navbar = ({ cartCount = 0 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentCartCount, setCurrentCartCount] = useState(cartCount);
+  const cartId = 1;
+
+  useEffect(() => {
+    const fetchCartQuantity = async () => {
+      try {
+        const response = await fetch(`https://localhost:7002/api/cart/${cartId}`);
+        if (!response.ok) throw new Error('Failed to fetch cart');
+        const data = await response.json();
+        const itemCount = data.items ? data.items.length : 0;
+        setCurrentCartCount(itemCount);
+      } catch (error) {
+        console.error('Error fetching cart quantity:', error);
+      }
+    };
+
+    
+    // Create event listener for cart updates
+    window.addEventListener('cartUpdated', fetchCartQuantity);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('cartUpdated', fetchCartQuantity);
+    };
+  }, [cartId]);
 
   return (
     <nav className="bg-gradient-to-r from-amber-100 to-orange-100 shadow-lg">
@@ -70,10 +95,19 @@ const Navbar = () => {
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Profile icon */}
-            <button className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors">
+            {/* Cart button with badge */}
+            <Link 
+              to="/cart"
+              className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors"
+              aria-label="View Cart"
+            >
               <User className="w-5 h-5" />
-            </button>
+              {currentCartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1.5 py-0.5">
+                  {currentCartCount}
+                </span>
+              )}
+            </Link>
 
             {/* Auth buttons */}
             <div className="flex items-center space-x-2 text-sm">
