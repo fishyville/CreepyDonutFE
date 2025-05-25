@@ -7,6 +7,7 @@ const Navbar = ({ cartCount = 0 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentCartCount, setCurrentCartCount] = useState(cartCount);
   const [cartId, setCartId] = useState(null);
+  const [showEmptyCartPopup, setShowEmptyCartPopup] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('userId'));
   const userId = localStorage.getItem('userId');
   const navigate = useNavigate();
@@ -122,8 +123,15 @@ const Navbar = ({ cartCount = 0 }) => {
             </button>
 
             {/* Cart button with badge (previously User) */}
-            <Link 
-              to="/cart"
+            <button 
+            onClick={() => {
+              if (currentCartCount === 0) {
+                setShowEmptyCartPopup(true); // Tampilkan pop-up
+              } else {
+                navigate('/cart');
+              }
+            }}
+
               className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors"
               aria-label="View Cart"
             >
@@ -133,7 +141,7 @@ const Navbar = ({ cartCount = 0 }) => {
                   {currentCartCount}
                 </span>
               )}
-            </Link>
+            </button>
             
             {/* Auth buttons */}
             <div className="flex items-center space-x-2 text-sm">
@@ -213,6 +221,22 @@ const Navbar = ({ cartCount = 0 }) => {
           </div>
         )}
       </div>
+      {showEmptyCartPopup && (
+      <div className="fixed inset-0 backdrop-blur-[10px] flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full text-center">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            You haven't added any items yet.
+          </h2>
+          <button 
+            onClick={() => setShowEmptyCartPopup(false)} 
+            className="mt-2 px-4 py-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
+          >
+            Okay
+          </button>
+        </div>
+      </div>
+    )}
+
     </nav>
   );
 };
