@@ -4,6 +4,11 @@ import Footer from "../component/Footer";
 import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
+  // Update the states to match API response structure
+  const [cartData, setCartData] = useState({
+    id: null,
+    items: []
+  });
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,8 +26,13 @@ const Cart = () => {
   const [cartId, setCartId] = useState(null); // Add this state
   const [checkoutClicked, setCheckoutClicked] = useState(false);
   const userId = localStorage.getItem('userId');
+
   const navigate = useNavigate();
+
+  const userName = localStorage.getItem('username');
+
   console.log(userId);
+  console.log(userName);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,11 +42,13 @@ const Cart = () => {
         const cartRes = await fetch(`https://localhost:7002/api/cart/${userId}`);
         if (!cartRes.ok) throw new Error('Failed to fetch cart');
         const cartData = await cartRes.json();
-        setCartItems(cartData.items || []);
-        setCartId(cartData.id); // Store the cartId
         
-        // Calculate total price
-        const total = cartData.items.reduce((sum, item) => 
+        setCartData(cartData); // Store the complete cart data
+        setCartItems(cartData.items || []);
+        setCartId(cartData.id);
+        
+        // Calculate total price from API data
+        const total = (cartData.items || []).reduce((sum, item) => 
           sum + (item.price * item.quantity), 0
         );
         setTotalPrice(total);
@@ -45,7 +57,6 @@ const Cart = () => {
         const productsRes = await fetch('https://localhost:7002/api/products');
         if (!productsRes.ok) throw new Error('Failed to fetch products');
         const productsData = await productsRes.json();
-        // Take only first 5 products
         setRecommendedProducts(productsData.slice(0, 5));
 
       } catch (err) {
@@ -57,7 +68,7 @@ const Cart = () => {
     };
 
     fetchData();
-  }, []);
+  }, [userId]);
 
   // Update the updateQuantity function to use the stored cartId
   const updateQuantity = async (productId, newQty) => {
@@ -213,6 +224,20 @@ const Cart = () => {
     }
   };
 
+  // Add this function at the top of your component, after the const Cart = () => { line
+  const getCategoryName = (categoryId) => {
+    switch (categoryId) {
+      case 1:
+        return "Donut";
+      case 2:
+        return "Drink";
+      case 3:
+        return "Merch";
+      default:
+        return "Unknown";
+    }
+  };
+
   // Show loading and error states
   if (loading) {
     return (
@@ -249,57 +274,77 @@ const Cart = () => {
               <div className="bg-white p-8">
                 {/* Cart items */}
                 <div className="space-y-4 mb-8">
+                  {/* Labels header */}
+                  <div className="flex items-center px-6">
+                    <div className="w-[250px]"></div> {/* Space for product info */}
+
+                  </div>
+
+                  {/* Cart items */}
                   {cartItems.map((item) => (
-                    <div key={item.productId} 
+                    <div key={item.id} 
                       className="flex items-center bg-white rounded-[30px] p-6 shadow-sm border border-[#f2d9b1]"
                     >
-                      <img 
-                        src={item.imageUrl || "/placeholder-donut.jpg"} 
-                        alt={item.name}
-                        className="w-16 h-16 rounded-full object-cover mr-4"
-                      />
-                      <div className="flex-1">
-                        <h3 className="font-bold">{item.name}</h3>
-                        <div className="text-sm text-gray-600">Donut</div>
+                      {/* Product info - Left side */}
+                      <div className="flex items-center w-[250px]">
+                        <img 
+                          src={item.imageUrl} 
+                          alt={item.productName}
+                          className="w-16 h-16 rounded-full object-cover mr-4"
+                        />
+                        <div>
+                          <h3 className="font-bold text-[#2d1a0e] text-lg">{item.productName}</h3>
+                          <div className="text-sm text-[#7c5a3a]">{getCategoryName(item.categoryId)}</div>
+                        </div>
                       </div>
                       
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center">
+                      {/* Right side content with labels */}
+                      <div className="flex-1 flex items-center">
+                        <div className="flex-1 flex items-center justify-between px-4">
+                          {/* Quantity section */}
+                          <div className="flex flex-col items-center">
+                            <span className="text-sm font-bold text-[#2b2b2b] mb-2">Quantity</span>
+                            <div className="flex items-center">
+                              <button
+                                className="w-6 h-6 rounded-full bg-[#4a2b1b] flex items-center justify-center hover:opacity-90 text-white font-bold text-sm"
+                                onClick={() => updateQuantity(item.productId, Math.max(0, item.quantity - 1))}
+                              >
+                                -
+                              </button>
+                              <span className="mx-4 w-8 text-center font-bold text-[#4a2b1b]">{item.quantity}</span>
+                              <button
+                                className="w-6 h-6 rounded-full bg-[#4a2b1b] flex items-center justify-center hover:opacity-90 text-white font-bold text-sm"
+                                onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Price section */}
+                          <div className="flex flex-col items-center mx-8">
+                            <span className="text-sm font-bold text-[#2b2b2b] mb-2">Price</span>
+                            <span className="text-[#4a2b1b] font-bold">
+                              Rp {new Intl.NumberFormat('id-ID').format(item.price)}
+                            </span>
+                          </div>
+
+                          {/* Total section */}
+                          <div className="flex flex-col items-center mx-8">
+                            <span className="text-sm font-bold text-[#2b2b2b] mb-2">Total</span>
+                            <span className="text-[#4a2b1b] font-bold">
+                              Rp {new Intl.NumberFormat('id-ID').format(item.price * item.quantity)}
+                            </span>
+                          </div>
+
+                          {/* Remove button */}
                           <button
-                            className="w-6 h-6 rounded-full bg-[#f2d9b1] flex items-center justify-center"
-                            onClick={() => updateQuantity(item.productId, Math.max(0, item.quantity - 1))}
+                            onClick={() => updateQuantity(item.productId, 0)}
+                            className="px-6 py-2 text-[#9a2b1b] border border-[#9a2b1b] rounded-full hover:bg-[#fff1e6] transition-colors text-sm"
                           >
-                            -
-                          </button>
-                          <span className="mx-3">{item.quantity}</span>
-                          <button
-                            className="w-6 h-6 rounded-full bg-[#f2d9b1] flex items-center justify-center"
-                            onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                          >
-                            +
+                            Remove
                           </button>
                         </div>
-
-                        <div className="w-24 text-right">
-                          {new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR'
-                          }).format(item.price)}
-                        </div>
-
-                        <div className="w-24 text-right">
-                          {new Intl.NumberFormat('id-ID', {
-                            style: 'currency',
-                            currency: 'IDR'
-                          }).format(item.price * item.quantity)}
-                        </div>
-
-                        <button
-                          onClick={() => updateQuantity(item.productId, 0)}
-                          className="ml-4 text-[#eb7c7b] hover:text-red-700"
-                        >
-                          Remove
-                        </button>
                       </div>
                     </div>
                   ))}
@@ -307,151 +352,185 @@ const Cart = () => {
 
                 {/* Shipping & Payment sections with similar rounded style */}
                 <div className="space-y-6">
-                  <div className="bg-white rounded-[30px] p-6 shadow-sm border border-[#f2d9b1]">
-                    <h2 className="text-xl font-bold mb-4">Shipping Address</h2>
-                    <div className="space-y-4">
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="name"
-                          placeholder="Write your address name.."
-                          value={shippingAddress.name}
-                          onChange={handleAddressChange}
-                          className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-full py-2 px-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
-                        />
-                        <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                          📍
-                        </span>
-                      </div>
-
-                      <div className="relative">
-                        <input
-                          type="text"
-                          name="address"
-                          placeholder="Write your address.."
-                          value={shippingAddress.address}
-                          onChange={handleAddressChange}
-                          className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-full py-2 px-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
-                        />
-                        <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                          🏠
-                        </span>
-                      </div>
-
-                      <div className="flex gap-4">
-                        <div className="relative flex-1">
+                  <div className="flex gap-6">
+                    {/* Shipping Address - Left Side */}
+                    <div className="flex-1 bg-white rounded-[30px] p-6 shadow-sm border border-[#f2d9b1]">
+                      <h2 className="text-xl font-bold mb-4">Shipping Address</h2>
+                      <div className="space-y-4">
+                        <div className="relative">
                           <input
                             type="text"
-                            name="city"
-                            placeholder="City"
-                            value={shippingAddress.city}
+                            name="name"
+                            placeholder="Write your address name.."
+                            value={shippingAddress.name}
                             onChange={handleAddressChange}
-                            className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-full py-2 px-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
+                            className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-full py-2 pl-12 pr-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
                           />
                           <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                            🏢
+                            📍
                           </span>
                         </div>
 
-                        <div className="relative flex-1">
+                        <div className="relative">
                           <input
                             type="text"
-                            name="postalCode"
-                            placeholder="Postal code"
-                            value={shippingAddress.postalCode}
+                            name="address"
+                            placeholder="Write your address.."
+                            value={shippingAddress.address}
                             onChange={handleAddressChange}
-                            className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-full py-2 px-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
+                            className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-full py-2 pl-12 pr-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
                           />
                           <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                            📮
+                            🏠
                           </span>
                         </div>
-                      </div>
 
-                      <div className="relative">
-                        <input
-                          type="tel"
-                          name="phone"
-                          placeholder="Write your phone number.."
-                          value={shippingAddress.phone}
-                          onChange={handleAddressChange}
-                          className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-full py-2 px-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
-                        />
-                        <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                          📱
-                        </span>
-                      </div>
+                        <div className="flex gap-4">
+                          <div className="relative flex-1">
+                            <input
+                              type="text"
+                              name="city"
+                              placeholder="City"
+                              value={shippingAddress.city}
+                              onChange={handleAddressChange}
+                              className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-full py-2 pl-12 pr-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
+                            />
+                            <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                              🏢
+                            </span>
+                          </div>
 
-                      <div className="relative">
-                        <textarea
-                          name="notes"
-                          placeholder="Additional Notes...."
-                          value={shippingAddress.notes}
-                          onChange={handleAddressChange}
-                          rows="4"
-                          className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-2xl py-2 px-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-[30px] p-6 shadow-sm border border-[#f2d9b1]">
-                    <h2 className="text-xl font-bold mb-4">Payment Details</h2>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Sub Total</span>
-                        <span>{new Intl.NumberFormat('id-ID', {
-                          style: 'currency',
-                          currency: 'IDR'
-                        }).format(totalPrice)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Tax (10%)</span>
-                        <span>{new Intl.NumberFormat('id-ID', {
-                          style: 'currency',
-                          currency: 'IDR'
-                        }).format(totalPrice * 0.1)}</span>
-                      </div>
-                      <div className="flex justify-between font-bold">
-                        <span>Total</span>
-                        <span>{new Intl.NumberFormat('id-ID', {
-                          style: 'currency',
-                          currency: 'IDR'
-                        }).format(totalPrice * 1.1)}</span>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={handleCheckout}
-                      className="w-full bg-[#9a2b1b] hover:bg-[#2a1b0b] transition-colors duration-200 text-white py-2 rounded-full mt-4"
-                    >
-                      Checkout
-                    </button>
-
-                    {/* Confirmation Dialog */}
-                    {showConfirmation && (
-                      <div className="fixed inset-0 backdrop-blur-[10px] flex items-center justify-center z-50">
-                        <div className="bg-white/100 rounded-2xl p-6 max-w-md w-full mx-4 shadow-lg">
-                          <h3 className="text-lg font-bold mb-4">Confirm Checkout</h3>
-                          <p className="text-gray-600 mb-6">
-                            Do you want to continue with the payment now?
-                          </p>
-                          <div className="flex justify-end space-x-4">
-                            <button
-                              onClick={() => handleConfirm(true)}
-                              className="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-900 hover:text-white"
-                            >
-                              Later
-                            </button>
-                            <button
-                              onClick={() => handleConfirm(false)}
-                              className="px-4 py-2 bg-[#9a2b1b] text-white rounded-full hover:bg-[#2a1b0b]"
-                            >
-                              Yes, Continue
-                            </button>
+                          <div className="relative flex-1">
+                            <input
+                              type="text"
+                              name="postalCode"
+                              placeholder="Postal code"
+                              value={shippingAddress.postalCode}
+                              onChange={handleAddressChange}
+                              className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-full py-2 pl-12 pr-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
+                            />
+                            <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                              📮
+                            </span>
                           </div>
                         </div>
+
+                        <div className="relative">
+                          <input
+                            type="tel"
+                            name="phone"
+                            placeholder="Write your phone number.."
+                            value={shippingAddress.phone}
+                            onChange={handleAddressChange}
+                            className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-full py-2 pl-12 pr-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
+                          />
+                          <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                            📱
+                          </span>
+                        </div>
+
+                        <div className="relative">
+                          <textarea
+                            name="notes"
+                            placeholder="Additional Notes...."
+                            value={shippingAddress.notes}
+                            onChange={handleAddressChange}
+                            rows="4"
+                            className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-2xl py-2 px-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
+                          />
+                        </div>
                       </div>
-                    )}
+                    </div>
+
+                    {/* Payment Details - Right Side */}
+                    <div className="flex-1 bg-white rounded-[30px] p-6 shadow-sm border border-[#f2d9b1]">
+                      <h2 className="text-xl font-bold mb-4">Payment Details</h2>
+                      {/* Promo section */}
+                      <div className="border border-[#e6d5c5] rounded-2xl p-4 mb-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <div className="bg-[#4a2b1b] w-10 h-10 rounded-full flex items-center justify-center mr-3">
+                              <span className="text-white text-xl">🏷️</span>
+                            </div>
+                            <div>
+                              <div className="font-bold text-[#2b2b2b] text-lg">10% Discount</div>
+                              <div className="text-sm text-[#7c5a3a]">Up to 15K</div>
+                            </div>
+                          </div>
+                          <svg className="w-6 h-6 text-[#4a2b1b]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                      {/* Price breakdown */}
+                      <div className="space-y-3 mb-6">
+                        <div className="flex justify-between text-[#2b2b2b]">
+                          <span>Receipt Number</span>
+                          <span className="font-bold text-[#4a2b1b]">012738917230127301270371207312</span>
+                        </div>
+                        <div className="flex justify-between text-[#2b2b2b]">
+                          <span>Sub Total</span>
+                          <span className="font-bold text-[#4a2b1b]">
+                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalPrice)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-[#2b2b2b]">
+                          <span>Tax (10%)</span>
+                          <span className="font-bold text-[#4a2b1b]">
+                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalPrice * 0.1)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-[#2b2b2b]">
+                          <span>Promo</span>
+                          <span className="font-bold text-[#4a2b1b]">
+                            Rp 15.000
+                          </span>
+                        </div>
+                      </div>
+                      {/* Grand Total */}
+                      <div className="mb-6">
+                        <div className="flex flex-col items-start">
+                          <span className="font-bold text-[#2b2b2b] text-lg">Grand Total</span>
+                          <span className="text-3xl font-bold text-[#4a2b1b]">
+                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPrice * 1.1 - 15000)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Checkout button */}
+                      <button 
+                        onClick={handleCheckout}
+                        className="w-full bg-[#4a2b1b] hover:bg-[#2a1b0b] transition-colors duration-200 text-white py-3 rounded-xl text-lg font-semibold"
+                      >
+                        Checkout
+                      </button>
+                      {/* Confirmation Dialog */}
+                      {showConfirmation && (
+                        <div className="fixed inset-0 backdrop-blur-[10px] flex items-center justify-center z-50">
+                          <div className="bg-white/100 rounded-2xl p-6 max-w-md w-full mx-4 shadow-lg">
+                            <h3 className="text-lg font-bold mb-4">Confirm Checkout</h3>
+                            <p className="text-gray-600 mb-6">
+                              Do you want to continue with the payment now?
+                            </p>
+                            <div className="flex justify-end space-x-4">
+                              <button
+                                onClick={() => handleConfirm(false)}
+                                className="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-900 hover:text-white"
+                              >
+                                Later
+                              </button>
+                              <button
+                                onClick={() => handleConfirm(true)}
+                                className="px-4 py-2 bg-[#9a2b1b] text-white rounded-full hover:bg-[#2a1b0b]"
+                              >
+                                Yes, Continue
+                              </button>
+                            </div>
+
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

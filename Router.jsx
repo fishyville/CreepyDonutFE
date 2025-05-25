@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from './src/pages/Home';
 import Menu from './src/pages/Menu';
-import Cart from './src/pages/Cart'; // Add this import
+import Cart from './src/pages/Cart'; 
 import Login from './src/pages/Login';
 import Fundraising from './src/pages/Fundraising';
 import Register from './src/pages/Register';

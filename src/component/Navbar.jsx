@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Menu, ChevronDown, Home, User, LogIn, FileText } from 'lucide-react';
+
+import { Search, Menu, ChevronDown, Home, ShoppingCart, ClipboardList, LogIn } from 'lucide-react';
+
 import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = ({ cartCount = 0 }) => {
@@ -7,7 +9,9 @@ const Navbar = ({ cartCount = 0 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentCartCount, setCurrentCartCount] = useState(cartCount);
   const [cartId, setCartId] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('userId'));
   const userId = localStorage.getItem('userId');
+  const navigate = useNavigate();
 
   const fetchCartData = React.useCallback(async () => {
     if (!userId) {
@@ -46,8 +50,16 @@ const Navbar = ({ cartCount = 0 }) => {
     };
   }, [fetchCartData]);
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/menu?search=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm('');
+    }
+  };
+
   return (
-    <nav className="bg-gradient-to-r from-amber-100 to-orange-100 shadow-lg">
+    <nav className="bg-[#f2d9b1] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -61,7 +73,7 @@ const Navbar = ({ cartCount = 0 }) => {
 
           {/* Search Bar */}
           <div className="flex-1 max-w-md mx-8">
-            <div className="relative">
+            <form onSubmit={handleSearch} className="relative">
               <input
                 type="text"
                 placeholder="Search.."
@@ -69,10 +81,13 @@ const Navbar = ({ cartCount = 0 }) => {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-amber-50 border border-amber-200 rounded-full py-2 pl-4 pr-10 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent"
               />
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-amber-200 rounded-full transition-colors">
+              <button 
+                type="submit"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-amber-200 rounded-full transition-colors"
+              >
                 <Search className="w-5 h-5 text-gray-600" />
               </button>
-            </div>
+            </form>
           </div>
 
           {/* Navigation Items */}
@@ -96,53 +111,56 @@ const Navbar = ({ cartCount = 0 }) => {
           {/* Right side icons and auth */}
           <div className="hidden md:flex items-center space-x-4 ml-6">
             {/* Home icon */}
-            <button className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors">
-              <Home className="w-5 h-5" />
-            </button>
-
-            {/* Order icon */}
-            <Link
-              to="/orders" 
+            <Link 
+              to="/"
               className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors"
-              aria-label="View Orders"
             >
-              <FileText className="w-5 h-5" />
+              <Home className="w-5 h-5" />
             </Link>
 
-            {/* Menu icon */}
+            {/* Order icon (previously Menu) */}
+
             <button className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors">
-              <Menu className="w-5 h-5" />
+              <ClipboardList className="w-5 h-5" />
             </button>
 
-            {/* Cart button with badge */}
+            {/* Cart button with badge (previously User) */}
             <Link 
               to="/cart"
               className="relative p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors"
               aria-label="View Cart"
             >
-              <User className="w-5 h-5" />
+              <ShoppingCart className="w-5 h-5" />
               {currentCartCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-1.5 py-0.5">
                   {currentCartCount}
                 </span>
               )}
             </Link>
-
+            
             {/* Auth buttons */}
             <div className="flex items-center space-x-2 text-sm">
-              <Link 
-                to="/login" 
-                className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
-              >
-                Login
-              </Link>
-              <span className="text-gray-400">|</span>
-              <Link 
-                to="/register" 
-                className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
-              >
-                Register
-              </Link>
+              {isLoggedIn ? (
+                <div className="flex items-center space-x-6">
+                  <span className="text-gray-700 font-medium">Welcome!</span>
+                </div>
+              ) : (
+                <>
+                  <Link 
+                    to="/login" 
+                    className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <span className="text-gray-400">|</span>
+                  <Link 
+                    to="/register" 
+                    className="text-gray-700 hover:text-gray-900 font-medium transition-colors"
+                  >
+                    Register
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 
@@ -172,18 +190,27 @@ const Navbar = ({ cartCount = 0 }) => {
               </a>
               {/* Mobile menu auth links */}
               <div className="border-t border-amber-200 pt-3 mt-3">
-                <Link 
-                  to="/login" 
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md"
-                >
-                  Login
-                </Link>
-                <Link 
-                  to="/register" 
-                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md"
-                >
-                  Register
-                </Link>
+                {isLoggedIn ? (
+                  <div className="px-3 py-2">
+                    <span className="block text-base font-medium text-gray-700 mb-2">Welcome!</span>
+                    
+                  </div>
+                ) : (
+                  <>
+                    <Link 
+                      to="/login" 
+                      className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md"
+                    >
+                      Login
+                    </Link>
+                    <Link 
+                      to="/register" 
+                      className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md"
+                    >
+                      Register
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
