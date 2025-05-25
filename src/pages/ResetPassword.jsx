@@ -1,6 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+// Import the same background images as Login
+import LoginBG from '../assets/LoginBG.png';
+import LoginBG2 from '../assets/LoginBG2.png';
+import LoginBG3 from '../assets/LoginBG3.png';
+import LoginBG4 from '../assets/LoginBG4.png';
+
+const backgroundImages = [
+  LoginBG,
+  LoginBG2,
+  LoginBG3,
+  LoginBG4
+];
 
 function ResetPassword() {
   const [email, setEmail] = useState('');
@@ -8,7 +20,18 @@ function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const navigate = useNavigate(); 
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === backgroundImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 2000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   const handleContinue = async () => {
     if (newPassword !== confirmPassword) {
@@ -52,22 +75,30 @@ function ResetPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: "url('data:image/svg+xml,%3Csvg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1200 800\"%3E%3Cdefs%3E%3ClinearGradient id=\"bg\" x1=\"0%25\" y1=\"0%25\" x2=\"100%25\" y2=\"100%25\"%3E%3Cstop offset=\"0%25\" style=\"stop-color:%23d4a574;stop-opacity:1\" /%3E%3Cstop offset=\"100%25\" style=\"stop-color:%23b8956b;stop-opacity:1\" /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=\"100%25\" height=\"100%25\" fill=\"url(%23bg)\" /%3E%3C/svg%3E')"
-        }}
-      />
-      
-      {/* Decorative Elements */}
-      <div className="absolute top-20 left-20 w-32 h-32 rounded-full bg-white/10 backdrop-blur-sm"></div>
-      <div className="absolute bottom-32 right-32 w-24 h-24 rounded-full bg-white/15 backdrop-blur-sm"></div>
-      <div className="absolute top-1/3 right-20 w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm"></div>
-      <div className="absolute bottom-20 left-1/4 w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm"></div>
+      {/* Background Image Slideshow */}
+      {backgroundImages.map((image, index) => (
+        <div
+          key={index}
+          className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+          style={{
+            backgroundImage: `url(${image})`,
+            opacity: currentImageIndex === index ? 1 : 0,
+            zIndex: 0
+          }}
+        />
+      ))}
 
-      {/* Reset Password Form Container */}
-      <div className="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 z-10">
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/30 z-[1]" />
+
+      {/* Update z-index for decorative elements */}
+      <div className="absolute top-20 left-20 w-32 h-32 rounded-full bg-white/10 backdrop-blur-sm z-[2]"></div>
+      <div className="absolute bottom-32 right-32 w-24 h-24 rounded-full bg-white/15 backdrop-blur-sm z-[2]"></div>
+      <div className="absolute top-1/3 right-20 w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm z-[2]"></div>
+      <div className="absolute bottom-20 left-1/4 w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm z-[2]"></div>
+
+      {/* Reset Password Form Container - Update z-index */}
+      <div className="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 z-[3]">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Reset Password</h1>
         </div>
@@ -137,13 +168,13 @@ function ResetPassword() {
           <div className="flex gap-4 pt-4">
             <button
               onClick={handleContinue}
-              className="flex-1 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] shadow-lg"
+              className="flex-1 bg-[#F2D9B1] hover:bg-[#6C4F36] text-[#6C4F36] hover:text-[#F2D9B1] font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] shadow-lg"
             >
               Continue
             </button>
             <button
               onClick={() => navigate('/')}
-              className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] shadow-lg"
+              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-all duration-300 transform hover:scale-[1.02] shadow-lg"
             >
               Cancel
             </button>
