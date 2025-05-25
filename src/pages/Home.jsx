@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -6,6 +5,7 @@ import './App.css';
 import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
 import ReactLenis from 'lenis/react';
+import ChatPopup from '../component/ChatPopup'; // Add this import
 import { useNavigate } from 'react-router-dom';
 
 export default function Home() {
