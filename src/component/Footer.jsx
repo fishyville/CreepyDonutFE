@@ -24,6 +24,14 @@ export default function Footer() {
 
   return (
     <div className="w-full bg-[#f2d9b1] overflow-hidden">
+      {/* Diagonal Stripe Bar */}
+      <div
+        className="w-full h-3"
+        style={{
+          backgroundImage:
+            'repeating-linear-gradient(135deg, #4a2b1b 0 12px, #eb7c7b 12px 24px)'
+        }}
+      ></div>
       {/* Main Footer Content */}
       <div className="px-12 py-16">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8">

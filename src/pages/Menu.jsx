@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
 
@@ -19,7 +19,8 @@ function Menu() {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const searchQuery = new URLSearchParams(location.search).get('search')?.toLowerCase();
 
   const fetchCartCount = async () => {
     try {
@@ -68,10 +69,23 @@ function Menu() {
   }, []);
 
   const getFilteredItems = () => {
+    let items = [];
+    
     if (activeCategory === 'all') {
-      return Object.values(menuData).flat();
+      items = Object.values(menuData).flat();
+    } else {
+      items = menuData[activeCategory] || [];
     }
-    return menuData[activeCategory] || [];
+
+    // Filter items based on search query
+    if (searchQuery) {
+      items = items.filter(item => 
+        item.name.toLowerCase().includes(searchQuery) || 
+        item.description.toLowerCase().includes(searchQuery)
+      );
+    }
+
+    return items;
   };
 
   // Update addToCart function to include userId
@@ -107,6 +121,12 @@ function Menu() {
       setIsAddingToCart(false);
     }
   };
+
+  useEffect(() => {
+    if (searchQuery) {
+      setActiveCategory('all');
+    }
+  }, [searchQuery]);
 
   if (loading) {
     return (
