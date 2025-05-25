@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Menu, ChevronDown, Home, User, LogIn } from 'lucide-react';
+import { Search, Menu, ChevronDown, Home, User, LogIn, FileText } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = ({ cartCount = 0 }) => {
@@ -99,6 +99,15 @@ const Navbar = ({ cartCount = 0 }) => {
             <button className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors">
               <Home className="w-5 h-5" />
             </button>
+
+            {/* Order icon */}
+            <Link
+              to="/orders" 
+              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors"
+              aria-label="View Orders"
+            >
+              <FileText className="w-5 h-5" />
+            </Link>
 
             {/* Menu icon */}
             <button className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors">

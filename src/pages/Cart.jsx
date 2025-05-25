@@ -19,7 +19,9 @@ const Cart = () => {
   });
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [cartId, setCartId] = useState(null); // Add this state
+  const [checkoutClicked, setCheckoutClicked] = useState(false);
   const userId = localStorage.getItem('userId');
+  const navigate = useNavigate();
   console.log(userId);
 
   useEffect(() => {
@@ -107,19 +109,107 @@ const Cart = () => {
     }));
   };
 
-  // Add this function to handle checkout
-  const handleCheckout = () => {
+  // Update handleCheckout function to validate before showing confirmation
+  const handleCheckout = async () => {
+    if (cartItems.length === 0) {
+      alert('Your cart is empty');
+      return;
+    }
+    
+    // Validate required fields before showing confirmation
+    if (!shippingAddress.name || !shippingAddress.address) {
+      alert('Please fill in the required shipping information');
+      return;
+    }
+    
+    setCheckoutClicked(true);
     setShowConfirmation(true);
   };
 
-  const handleConfirm = async (confirmed) => {
+  // Update handleConfirm function to create a new cart first, then create the order
+  const handleConfirm = async (isLater) => {
     setShowConfirmation(false);
-    if (confirmed) {
-      // Handle payment confirmation
-      console.log('Proceeding to payment...');
-      // Add your payment logic here
-    } else {
-      console.log('Payment cancelled');
+    
+    try {
+      const currentUserId = localStorage.getItem('userId');
+      if (!currentUserId) {
+        throw new Error('No user ID found');
+      }
+
+      const formattedAddress = `${shippingAddress.name}, ${shippingAddress.address}, ${shippingAddress.city} ${shippingAddress.postalCode}, Phone: ${shippingAddress.phone}${shippingAddress.notes ? `, Notes: ${shippingAddress.notes}` : ''}`;
+
+      // Create order data first without creating new cart
+      const orderData = {
+        userId: parseInt(currentUserId),
+        cartId: parseInt(cartId), // Use existing cartId instead of creating new one
+        totalPrice: parseFloat((totalPrice * 1.1).toFixed(2)),
+        status: isLater ? "Unpaid" : "Processing",
+        paymentMethod: isLater ? "Pay Later" : "Direct Payment",
+        shippingAddress: formattedAddress,
+        items: cartItems.map(item => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price
+        }))
+      };
+
+      // Create order first
+      const orderResponse = await fetch('https://localhost:7002/api/Orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'UserId': currentUserId
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.text();
+        throw new Error(errorData || 'Failed to create order');
+      }
+
+      const orderResult = await orderResponse.json();
+      console.log('Order created:', orderResult);
+
+      // Only create new cart after order is successfully created
+      const newCartResponse = await fetch(`https://localhost:7002/api/cart/${currentUserId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'UserId': currentUserId
+        }
+      });
+
+      if (!newCartResponse.ok) {
+        throw new Error('Failed to create new cart');
+      }
+
+      const newCartData = await newCartResponse.json();
+
+      // Update state with new cart
+      setCartId(newCartData.id);
+      setCartItems([]);
+      setTotalPrice(0);
+      
+      // Update navbar cart counter
+      window.dispatchEvent(new Event('cartUpdated'));
+
+      // Navigate based on payment choice
+      if (isLater) {
+        navigate('/order', { replace: true });
+      } else {
+        navigate('/payment', { 
+          state: { 
+            orderId: orderResult.id,
+            totalAmount: orderData.totalPrice
+          }
+        });
+      }
+
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      alert(`Failed to process order: ${error.message}`);
     }
   };
 
@@ -347,13 +437,13 @@ const Cart = () => {
                           </p>
                           <div className="flex justify-end space-x-4">
                             <button
-                              onClick={() => handleConfirm(false)}
+                              onClick={() => handleConfirm(true)}
                               className="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-900 hover:text-white"
                             >
                               Later
                             </button>
                             <button
-                              onClick={() => handleConfirm(true)}
+                              onClick={() => handleConfirm(false)}
                               className="px-4 py-2 bg-[#9a2b1b] text-white rounded-full hover:bg-[#2a1b0b]"
                             >
                               Yes, Continue

@@ -37,6 +37,7 @@ function Login() {
         const data = await response.json();
         // Save userId to localStorage
         localStorage.setItem('userId', data.userId);
+        localStorage.setItem('username', data.username);
         // Navigate to Menu page
         navigate('/home');
       } else {
