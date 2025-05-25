@@ -10,6 +10,7 @@ import ResetPassword from './src/pages/ResetPassword';
 import Order from './src/pages/Orders';
 import Account from './src/pages/Account'; // Add this import
 import History from './src/pages/History'; // Add this import
+import AboutUs from './src/pages/About';
 
 const AppRouter = () => {
   return (
@@ -25,6 +26,7 @@ const AppRouter = () => {
       <Route path="/orders" element={<Order />} />
       <Route path="/account" element={<Account />} />
       <Route path="/history" element={<History />} />
+      <Route path="/about" element={<AboutUs />} />
     </Routes>
   );
 };

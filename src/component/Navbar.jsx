@@ -99,12 +99,7 @@ const Navbar = ({ cartCount = 0 }) => {
               <Link to="/fundraising" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">FUNDRAISING</Link>
 
               {/* About Us */}
-              <a
-                href="#"
-                className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
-              >
-                ABOUT US
-              </a>
+              <Link to="/about" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">ABOUT US</Link>
             </div>
           </div>
 
@@ -118,11 +113,13 @@ const Navbar = ({ cartCount = 0 }) => {
               <Home className="w-5 h-5" />
             </Link>
 
-            {/* Order icon (previously Menu) */}
-
-            <button className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors">
+            {/* Order icon */}
+            <Link 
+              to="/orders"
+              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors"
+            >
               <ClipboardList className="w-5 h-5" />
-            </button>
+            </Link>
 
             {/* Cart button with badge (previously User) */}
             <Link 
