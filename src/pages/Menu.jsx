@@ -18,6 +18,7 @@ function Menu() {
   const [loading, setLoading] = useState(true);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const searchQuery = new URLSearchParams(location.search).get('search')?.toLowerCase();
@@ -89,38 +90,40 @@ function Menu() {
   };
 
   // Update addToCart function to include userId
-  const addToCart = async (productId) => {
-    setIsAddingToCart(true);
-    try {
-      const response = await fetch(
-        `https://localhost:7002/api/cart/${userId}/add-product`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId: productId,
-            quantity: 1
-          }),
-        }
-      );
+const addToCart = async (productId) => {
+  if (!userId) {
+    setShowLoginPopup(true);
+    return;
+  }
 
-      if (!response.ok) {
-        console.error('Failed to add to cart');
-        return;
+  setIsAddingToCart(true);
+  try {
+    const response = await fetch(
+      `https://localhost:7002/api/cart/${userId}/add-product`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: productId,
+          quantity: 1
+        }),
       }
+    );
 
-      // Fetch updated cart count immediately after successful addition
-      await fetchCartCount();
-
-      // Also dispatch event for Navbar update
-      window.dispatchEvent(new Event('cartUpdated'));
-
-    } catch (err) {
-      console.error('Error:', err);
-    } finally {
-      setIsAddingToCart(false);
+    if (!response.ok) {
+      console.error('Failed to add to cart');
+      return;
     }
-  };
+
+    await fetchCartCount();
+    window.dispatchEvent(new Event('cartUpdated'));
+
+  } catch (err) {
+    console.error('Error:', err);
+  } finally {
+    setIsAddingToCart(false);
+  }
+};
 
   useEffect(() => {
     if (searchQuery) {
@@ -283,6 +286,31 @@ function Menu() {
           </div>
         </div>
       </div>
+      {showLoginPopup && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-[#fffaf0] rounded-2xl shadow-xl p-6 max-w-md w-full text-center border-2 border-[#4a2b1b]">
+          <h2 className="text-2xl font-bold text-[#4a2b1b] mb-4">Not Logged In</h2>
+          <p className="text-[#4a2b1b] mb-6">Please log in to add items to your cart.</p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => setShowLoginPopup(false)}
+              className="px-4 py-2 rounded-full bg-white text-[#4a2b1b] border-2 border-[#4a2b1b] hover:bg-[#f2d9b1] transition"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                setShowLoginPopup(false);
+                navigate('/login');
+              }}
+              className="px-4 py-2 rounded-full bg-[#4a2b1b] text-[#f2d9b1] hover:bg-[#3a1f12] transition"
+            >
+              Login Now
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
       <Footer />
     </div>
   );
