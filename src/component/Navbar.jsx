@@ -6,30 +6,45 @@ const Navbar = ({ cartCount = 0 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentCartCount, setCurrentCartCount] = useState(cartCount);
-  const cartId = 1;
+  const [cartId, setCartId] = useState(null);
+  const userId = localStorage.getItem('userId');
 
-  useEffect(() => {
-    const fetchCartQuantity = async () => {
-      try {
-        const response = await fetch(`https://localhost:7002/api/cart/${cartId}`);
-        if (!response.ok) throw new Error('Failed to fetch cart');
-        const data = await response.json();
-        const itemCount = data.items ? data.items.length : 0;
+  const fetchCartData = React.useCallback(async () => {
+    if (!userId) {
+      setCurrentCartCount(0);
+      return;
+    }
+
+    try {
+      const cartResponse = await fetch(`https://localhost:7002/api/cart/${userId}`);
+      if (!cartResponse.ok) throw new Error('Failed to fetch cart');
+      const cartData = await cartResponse.json();
+      
+      if (cartData && cartData.items) {
+        setCartId(cartData.id);
+        const itemCount = cartData.items.length;
         setCurrentCartCount(itemCount);
-      } catch (error) {
-        console.error('Error fetching cart quantity:', error);
+      } else {
+        setCurrentCartCount(0);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching cart data:', error);
+      setCurrentCartCount(0);
+    }
+  }, [userId]);
 
-    
-    // Create event listener for cart updates
-    window.addEventListener('cartUpdated', fetchCartQuantity);
+  // Initial fetch and event listener setup
+  useEffect(() => {
+    fetchCartData();
+
+    // Set up event listener for cart updates
+    window.addEventListener('cartUpdated', fetchCartData);
 
     // Cleanup
     return () => {
-      window.removeEventListener('cartUpdated', fetchCartQuantity);
+      window.removeEventListener('cartUpdated', fetchCartData);
     };
-  }, [cartId]);
+  }, [fetchCartData]);
 
   return (
     <nav className="bg-gradient-to-r from-amber-100 to-orange-100 shadow-lg">

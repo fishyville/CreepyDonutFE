@@ -20,11 +20,7 @@ function Menu() {
   const [cartCount, setCartCount] = useState(0);
   const navigate = useNavigate();
 
-  // Set both cartId and userId to 2
-  // const cartId = 2;
-  const userId = 3;
 
-  // Fetch cart count dari API cart/2
   const fetchCartCount = async () => {
     try {
       const res = await fetch(`https://localhost:7002/api/cart/${userId}`);
