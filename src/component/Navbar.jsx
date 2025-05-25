@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+
 import { Search, Menu, ChevronDown, Home, ShoppingCart, ClipboardList, LogIn } from 'lucide-react';
+
 import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = ({ cartCount = 0 }) => {
@@ -117,6 +119,7 @@ const Navbar = ({ cartCount = 0 }) => {
             </Link>
 
             {/* Order icon (previously Menu) */}
+
             <button className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors">
               <ClipboardList className="w-5 h-5" />
             </button>
