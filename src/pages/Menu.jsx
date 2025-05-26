@@ -287,7 +287,7 @@ const addToCart = async (productId) => {
         </div>
       </div>
       {showLoginPopup && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="fixed inset-0 backdrop-blur-[10px] flex items-center justify-center z-50">
         <div className="bg-[#fffaf0] rounded-2xl shadow-xl p-6 max-w-md w-full text-center border-2 border-[#4a2b1b]">
           <h2 className="text-2xl font-bold text-[#4a2b1b] mb-4">Not Logged In</h2>
           <p className="text-[#4a2b1b] mb-6">Please log in to add items to your cart.</p>
