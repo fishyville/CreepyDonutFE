@@ -151,30 +151,6 @@ const Cart = () => {
     setShowConfirmation(true);
   };
 
-  // Update the updateOrderStatus function
-  const updateOrderStatus = async (orderId, status) => {
-    try {
-      const response = await fetch(`https://localhost:7002/api/Orders/${orderId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'UserId': localStorage.getItem('userId')
-        },
-        body: JSON.stringify({
-          status: status  // This matches the API's expected format
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update order status');
-      }
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      throw error;
-    }
-  };
-
   // Update handleConfirm function to create a new cart first, then create the order
   const handleConfirm = async (isLater) => {
     setShowConfirmation(false);
@@ -221,13 +197,34 @@ const Cart = () => {
       const orderResult = await orderResponse.json();
       console.log('Order created:', orderResult);
 
-      if (!isLater) {
-        // Update order status to Processing
-        await updateOrderStatus(orderResult.id, "Processing");
+      // Create new cart
+      const newCartResponse = await fetch(`https://localhost:7002/api/cart/${currentUserId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'UserId': currentUserId
+        }
+      });
 
+      if (!newCartResponse.ok) {
+        throw new Error('Failed to create new cart');
+      }
+
+      const newCartData = await newCartResponse.json();
+
+      // Update state with new cart
+      setCartId(newCartData.id);
+      setCartItems([]);
+      setTotalPrice(0);
+      
+      // Update navbar cart counter
+      window.dispatchEvent(new Event('cartUpdated'));
+
+      if (!isLater) {
         // Get snap token for payment
-        const nameParts = userName?.split(' ') || ['', '']; 
+        const nameParts = userName?.split(' ') || ['', '']; // Split name into parts
         const firstName = nameParts[0];
+        const lastName = nameParts.slice(1).join(' '); // Join remaining parts as last name
 
         const snapResponse = await fetch('https://localhost:7002/payment/get-snap-token', {
           method: 'POST',
@@ -252,8 +249,9 @@ const Cart = () => {
         const snapData = await snapResponse.json();
         setIframeUrl(`https://app.sandbox.midtrans.com/snap/v4/redirection/${snapData.token}`);
         setShowQRCode(true);
+        setShowConfirmation(false);
       } else {
-        navigate('/orders');
+        navigate('/order');
       }
 
     } catch (error) {
@@ -567,14 +565,8 @@ const Cart = () => {
                             <div className="flex justify-end space-x-4">
                               <button
                                 onClick={async () => {
-                                  try {
-                                    const orderResponse = await handleConfirm(true);
-                                    await updateOrderStatus(orderResponse.id, "Unpaid");
-                                    navigate('/orders');
-                                  } catch (error) {
-                                    console.error('Error:', error);
-                                    alert('Failed to process order');
-                                  }
+                                  await handleConfirm(true);
+                                  navigate('/orders');
                                 }}
                                 className="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-900 hover:text-white"
                               >
@@ -582,14 +574,7 @@ const Cart = () => {
                               </button>
                               <button
                                 onClick={async () => {
-                                  try {
-                                    const orderResponse = await handleConfirm(false);
-                                    await updateOrderStatus(orderResponse.id, "Processing");
-                                    setShowQRCode(true);
-                                  } catch (error) {
-                                    console.error('Error:', error);
-                                    alert('Failed to process order');
-                                  }
+                                  await handleConfirm(false); // This triggers the QR code generation
                                 }}
                                 className="px-4 py-2 bg-[#9a2b1b] text-white rounded-full hover:bg-[#2a1b0b]"
                               >
