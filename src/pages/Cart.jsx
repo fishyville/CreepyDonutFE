@@ -162,12 +162,22 @@ const Cart = () => {
 
       const formattedAddress = `${shippingAddress.name}, ${shippingAddress.address}, ${shippingAddress.city} ${shippingAddress.postalCode}, Phone: ${shippingAddress.phone}${shippingAddress.notes ? `, Notes: ${shippingAddress.notes}` : ''}`;
 
-      // Create order data
+
+      // First, add a function to calculate the final price with discount
+      const calculateFinalPrice = (subtotal) => {
+        const tax = subtotal * 0.1;
+        // Cap discount at 15000
+        const discount = 15000;
+        return parseFloat((subtotal + tax - discount).toFixed(2));
+      };
+
+      // Then update the orderData object in handleConfirm function
       const orderData = {
         userId: parseInt(currentUserId),
         cartId: parseInt(cartId),
-        totalPrice: parseFloat((totalPrice * 1.1).toFixed(2)),
-        status: isLater ? "Unpaid" : "Processing", // Set status based on payment choice
+        totalPrice: totalPrice * 1.1 - 15000, // Match the displayed grand total calculation
+        status: isLater ? "Unpaid" : "Processing",
+
         paymentMethod: isLater ? "Pay Later" : "Direct Payment",
         shippingAddress: formattedAddress,
         items: cartItems.map(item => ({
@@ -177,7 +187,9 @@ const Cart = () => {
         }))
       };
 
+
       // Create order
+
       const orderResponse = await fetch('https://localhost:7002/api/Orders', {
         method: 'POST',
         headers: {
@@ -196,28 +208,15 @@ const Cart = () => {
       const orderResult = await orderResponse.json();
       console.log('Order created:', orderResult);
 
-      // Create new cart
-      const newCartResponse = await fetch(`https://localhost:7002/api/cart/${currentUserId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'UserId': currentUserId
-        }
-      });
 
-      if (!newCartResponse.ok) {
-        throw new Error('Failed to create new cart');
-      }
+      // Update local state with empty cart (since new cart is created by API)
 
-      const newCartData = await newCartResponse.json();
-
-      // Update state with new cart
-      setCartId(newCartData.id);
       setCartItems([]);
       setTotalPrice(0);
       
       // Update navbar cart counter
       window.dispatchEvent(new Event('cartUpdated'));
+
 
       if (!isLater) {
         // Get snap token for payment
@@ -232,6 +231,7 @@ const Cart = () => {
             'Accept': 'application/json'
           },
           body: JSON.stringify({
+
             orderId: orderResult.id,
             grossAmount: parseFloat((totalPrice * 1.1 - 15000).toFixed(2)),
             firstName: firstName,
@@ -291,9 +291,8 @@ const Cart = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col pt-16">
       <Navbar cartCount={cartItems.length} />
-      
       <div className="relative flex-1 bg-[#4a2b1b]">
         <div className="flex">
           {/* Left section - Cart and Shipping - Add right margin to create space */}
@@ -563,18 +562,22 @@ const Cart = () => {
                             </p>
                             <div className="flex justify-end space-x-4">
                               <button
+
                                 onClick={async () => {
                                   await handleConfirm(true);
                                   navigate('/orders');
                                 }}
+
                                 className="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-900 hover:text-white"
                               >
                                 Later
                               </button>
                               <button
+
                                 onClick={async () => {
                                   await handleConfirm(false); // This triggers the QR code generation
                                 }}
+
                                 className="px-4 py-2 bg-[#9a2b1b] text-white rounded-full hover:bg-[#2a1b0b]"
                               >
                                 Yes, Continue

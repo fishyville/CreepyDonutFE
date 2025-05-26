@@ -17,6 +17,7 @@
     "lucide-react": "^0.511.0",
     "peer": "^1.0.2",
     "react": "^19.1.0",
+    "react-chat-widget": "^3.1.4",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.0",
     "react-slick": "^0.30.3",
