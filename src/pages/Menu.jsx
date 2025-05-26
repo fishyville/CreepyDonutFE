@@ -140,7 +140,7 @@ const addToCart = async (productId) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col pt-16">
       <Navbar cartCount={cartCount} />
       <div className="flex-1 bg-[#f9f3e7]">
         {/* Hero Section */}

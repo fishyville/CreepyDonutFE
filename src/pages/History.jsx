@@ -35,7 +35,7 @@ const HistoryPage = () => {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen pt-16">
       <Navbar />
       <div className="flex flex-1">
         {/* Left Sidebar */}

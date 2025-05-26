@@ -4,7 +4,7 @@ import Footer from '../component/Footer';
 
 const AboutUs = () => {
   return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden">
+    <div className="min-h-screen flex flex-col overflow-x-hidden pt-16">
       <Navbar />
       
       <main className="flex-grow">

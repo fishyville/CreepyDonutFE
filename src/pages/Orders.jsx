@@ -11,11 +11,33 @@ const generateOrderNumber = () => {
   return `${prefix}${timestamp}${random}`;
 };
 
+const parseShippingAddress = (addressString) => {
+  try {
+    const [name, address, cityPostal, phoneInfo, ...rest] = addressString.split(', ');
+    const [city, postalCode] = cityPostal.split(' ');
+    const phone = phoneInfo.replace('Phone: ', '');
+    
+    return {
+      name,
+      address,
+      city,
+      postalCode,
+      phone
+    };
+  } catch (error) {
+    console.error('Error parsing address:', error);
+    return null;
+  }
+};
+
 const Order = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]); // Changed to array
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedCartItems, setSelectedCartItems] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null); // New state for selected order
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -104,6 +126,30 @@ const Order = () => {
     }
   };
 
+  const handleViewDetails = async (order) => {
+    try {
+      const response = await fetch(`https://localhost:7002/api/cart-items/${order.cartId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch cart items');
+      }
+
+      const cartItems = await response.json();
+      setSelectedCartItems(cartItems);
+      setSelectedOrder(order); // Store the selected order
+      setShowPopup(true);
+    } catch (error) {
+      console.error('Error fetching cart items:', error);
+      alert('Failed to load order details');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -115,7 +161,7 @@ const Order = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen pt-16">
       <Navbar />
       <div className="flex flex-1">
         {/* Left Sidebar */}
@@ -220,7 +266,7 @@ const Order = () => {
                       </div>
                     </div>
                     <button
-                      onClick={() => navigate(`/order/${order.id}`)}
+                      onClick={() => handleViewDetails(order)}
                       className="px-4 py-2 bg-[#6d4c2b] text-white rounded hover:bg-[#4a2b1b] transition-colors"
                     >
                       View Details
@@ -239,6 +285,95 @@ const Order = () => {
         </div>
       </div>
       <Footer />
+
+      {showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-[#4a2b1b]">Order Summary</h2>
+              <button
+                onClick={() => setShowPopup(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Shipping Address Section */}
+            <div className="mb-6">
+              <h3 className="font-medium text-gray-800 mb-4">Shipping Address</h3>
+              {selectedOrder && parseShippingAddress(selectedOrder.shippingAddress) && (
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="border rounded p-2">
+                      <p className="text-sm text-gray-500">Name:</p>
+                      <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).name}</p>
+                    </div>
+                    <div className="border rounded p-2">
+                      <p className="text-sm text-gray-500">Contact Number:</p>
+                      <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).phone}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded p-2">
+                    <p className="text-sm text-gray-500">Address:</p>
+                    <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).address}</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="border rounded p-2">
+                      <p className="text-sm text-gray-500">City:</p>
+                      <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).city}</p>
+                    </div>
+                    <div className="border rounded p-2">
+                      <p className="text-sm text-gray-500">Postal Code:</p>
+                      <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).postalCode}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="space-y-4">
+              {selectedCartItems.map((item) => (
+                <div key={item.id} className="flex items-center justify-between py-3 border-b">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.productName}
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                    <div>
+                      <h3 className="font-medium text-gray-800">{item.productName}</h3>
+                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-[#4A2B1B]">
+                      Rp {item.price.toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 pt-4 border-t">
+              <div className="flex justify-between items-center mb-4">
+                <span className="font-medium">TOTAL PRICE:</span>
+                <span className="font-bold text-[#4A2B1B]">
+                  Rp {selectedOrder?.totalPrice.toLocaleString()}
+                </span>
+              </div>
+              <button
+                onClick={() => setShowPopup(false)}
+                className="w-full py-3 bg-[#4A2B1B] text-[#F2D9B1] rounded hover:bg-[#F2D9B1] hover:text-[#4A2B1B] transition-colors text-center"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

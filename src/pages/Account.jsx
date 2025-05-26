@@ -80,7 +80,7 @@ const Account = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen pt-16"> {/* Add pt-16 here */}
       <Navbar />
       <div className="flex flex-1">
         {/* Left Sidebar */}
@@ -158,7 +158,7 @@ const Account = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 bg-[#f9f5f0] p-8">
+        <div className="flex-1 bg-[#f9f5f0] p-8"> {/* Remove pt-16 from here */}
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-bold text-[#4a2b1b] mb-6">Personal Information</h2>
             <p className="text-gray-600 mb-6">

@@ -49,7 +49,7 @@ function Fundraising() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen flex flex-col pt-16">
       {/* Navbar */}
       <Navbar />
 
