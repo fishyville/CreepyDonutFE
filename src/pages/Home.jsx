@@ -16,6 +16,7 @@ import meses from '../assets/meses.jpg';
 import piring from '../assets/piring.jpg';
 import tiramisu from '../assets/tiramisu.jpg';
 import bestseller from '../assets/bestseller.jpg';
+import ChatBot from '../component/Chatbot';
 
 
 
@@ -377,6 +378,7 @@ export default function Home() {
 
         {/* Footer */}
         <Footer />
+        <ChatBot />
       </div>
     </ReactLenis>
   );

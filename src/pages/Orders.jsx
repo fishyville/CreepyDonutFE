@@ -291,7 +291,7 @@ const Order = () => {
 
                     <div className="flex justify-end items-end">
                       <button
-                        onClick={() => navigate(`/order/${order.id}`)}
+                        onClick={() => handleViewDetails(order)}
                         className="px-4 py-2 bg-[#6d4c2b] text-white rounded hover:bg-[#4a2b1b] transition-colors"
                       >
                         View Details
