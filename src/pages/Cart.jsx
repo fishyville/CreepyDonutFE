@@ -20,16 +20,29 @@ const Cart = () => {
     city: '',
     postalCode: '',
     phone: '',
+    email: '', // Add email field
     notes: ''
   });
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [cartId, setCartId] = useState(null); // Add this state
   const [checkoutClicked, setCheckoutClicked] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [snapToken, setSnapToken] = useState(null);
+  const [iframeUrl, setIframeUrl] = useState(null); // Add this state
   const userId = localStorage.getItem('userId');
 
   const navigate = useNavigate();
 
   const userName = localStorage.getItem('username');
+  const userEmail = localStorage.getItem('userEmail'); // Add this line to get email
+
+  // Initialize shipping address with user's email
+  useEffect(() => {
+    setShippingAddress(prev => ({
+      ...prev,
+      email: userEmail || '' // Pre-fill email field with user's email from localStorage
+    }));
+  }, [userEmail]);
 
   console.log(userId);
   console.log(userName);
@@ -149,12 +162,12 @@ const Cart = () => {
 
       const formattedAddress = `${shippingAddress.name}, ${shippingAddress.address}, ${shippingAddress.city} ${shippingAddress.postalCode}, Phone: ${shippingAddress.phone}${shippingAddress.notes ? `, Notes: ${shippingAddress.notes}` : ''}`;
 
-      // Create order data first without creating new cart
+      // Create order data
       const orderData = {
         userId: parseInt(currentUserId),
-        cartId: parseInt(cartId), // Use existing cartId instead of creating new one
+        cartId: parseInt(cartId),
         totalPrice: parseFloat((totalPrice * 1.1).toFixed(2)),
-        status: isLater ? "Unpaid" : "Processing",
+        status: isLater ? "Unpaid" : "Processing", // Set status based on payment choice
         paymentMethod: isLater ? "Pay Later" : "Direct Payment",
         shippingAddress: formattedAddress,
         items: cartItems.map(item => ({
@@ -164,7 +177,7 @@ const Cart = () => {
         }))
       };
 
-      // Create order first
+      // Create order
       const orderResponse = await fetch('https://localhost:7002/api/Orders', {
         method: 'POST',
         headers: {
@@ -183,9 +196,9 @@ const Cart = () => {
       const orderResult = await orderResponse.json();
       console.log('Order created:', orderResult);
 
-      // Only create new cart after order is successfully created
+      // Create new cart
       const newCartResponse = await fetch(`https://localhost:7002/api/cart/${currentUserId}`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'UserId': currentUserId
@@ -206,16 +219,38 @@ const Cart = () => {
       // Update navbar cart counter
       window.dispatchEvent(new Event('cartUpdated'));
 
-      // Navigate based on payment choice
-      if (isLater) {
-        navigate('/order', { replace: true });
-      } else {
-        navigate('/payment', { 
-          state: { 
+      if (!isLater) {
+        // Get snap token for payment
+        const nameParts = userName?.split(' ') || ['', '']; // Split name into parts
+        const firstName = nameParts[0];
+        const lastName = nameParts.slice(1).join(' '); // Join remaining parts as last name
+
+        const snapResponse = await fetch('https://localhost:7002/payment/get-snap-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
             orderId: orderResult.id,
-            totalAmount: orderData.totalPrice
-          }
+            grossAmount: parseFloat((totalPrice * 1.1 - 15000).toFixed(2)),
+            firstName: firstName,
+            lastName: firstName,
+            email: shippingAddress.email || '',
+            phone: shippingAddress.phone || ''
+          })
         });
+
+        if (!snapResponse.ok) {
+          throw new Error('Failed to generate payment QR code');
+        }
+
+        const snapData = await snapResponse.json();
+        setIframeUrl(`https://app.sandbox.midtrans.com/snap/v4/redirection/${snapData.token}`);
+        setShowQRCode(true);
+        setShowConfirmation(false);
+      } else {
+        navigate('/order');
       }
 
     } catch (error) {
@@ -430,6 +465,20 @@ const Cart = () => {
                         </div>
 
                         <div className="relative">
+                          <input
+                            type="email"
+                            name="email"
+                            placeholder="Write your email address.."
+                            value={shippingAddress.email}
+                            onChange={handleAddressChange}
+                            className="w-full bg-[#f9f5f0] border border-[#e6d5c5] rounded-full py-2 pl-12 pr-4 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#e6d5c5]"
+                          />
+                          <span className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                            📧
+                          </span>
+                        </div>
+
+                        <div className="relative">
                           <textarea
                             name="notes"
                             placeholder="Additional Notes...."
@@ -514,19 +563,95 @@ const Cart = () => {
                             </p>
                             <div className="flex justify-end space-x-4">
                               <button
-                                onClick={() => handleConfirm(false)}
+                                onClick={async () => {
+                                  await handleConfirm(true);
+                                  navigate('/orders');
+                                }}
                                 className="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-900 hover:text-white"
                               >
                                 Later
                               </button>
                               <button
-                                onClick={() => handleConfirm(true)}
+                                onClick={async () => {
+                                  await handleConfirm(false); // This triggers the QR code generation
+                                }}
                                 className="px-4 py-2 bg-[#9a2b1b] text-white rounded-full hover:bg-[#2a1b0b]"
                               >
                                 Yes, Continue
                               </button>
                             </div>
+                          </div>
+                        </div>
+                      )}
 
+                      {/* QR Code Popup */}
+                      {showQRCode && iframeUrl && (
+                        <div className="fixed inset-0 backdrop-blur-[10px] flex items-center justify-center z-50">
+                          <div className="bg-white/100 rounded-2xl p-6 w-[90%] max-w-2xl mx-4 shadow-lg">
+                            <div className="flex justify-between items-center mb-4">
+                              <h3 className="text-lg font-bold">Payment</h3>
+                              <button 
+                                onClick={async () => {
+                                  try {
+                                    const orderId = orderResult.id;
+                                    // First update the order status
+                                    const updateResponse = await fetch(`https://localhost:7002/api/Orders/${orderId}`, {
+                                      method: 'PUT',
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'UserId': localStorage.getItem('userId')
+                                      },
+                                      body: JSON.stringify({
+                                        id: orderId,
+                                        userId: parseInt(localStorage.getItem('userId')),
+                                        cartId: cartId,
+                                        totalPrice: parseFloat((totalPrice * 1.1 - 15000).toFixed(2)),
+                                        status: "Unpaid", // Make sure this matches exactly what your backend expects
+                                        paymentMethod: "Direct Payment",
+                                        shippingAddress: `${shippingAddress.name}, ${shippingAddress.address}, ${shippingAddress.city} ${shippingAddress.postalCode}`,
+                                        orderItems: cartItems.map(item => ({
+                                          productId: item.productId,
+                                          quantity: item.quantity,
+                                          price: item.price,
+                                          status: "Unpaid" // Add status here as well if needed
+                                        }))
+                                      })
+                                    });
+
+                                    if (!updateResponse.ok) {
+                                      throw new Error('Failed to update order status');
+                                    }
+
+                                    // Get the updated order to verify the status
+                                    const updatedOrder = await updateResponse.json();
+                                    console.log('Updated order:', updatedOrder); // Debug log
+
+                                    // Close popup and redirect
+                                    setShowQRCode(false);
+                                    navigate('/orders', { replace: true }); // Use replace to force a fresh load
+
+                                  } catch (error) {
+                                    console.error('Error updating order:', error);
+                                    // Still redirect even if update fails
+                                    setShowQRCode(false);
+                                    navigate('/orders', { replace: true });
+                                  }
+                                }}
+                                className="text-gray-500 hover:text-gray-700"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                            <div className="relative" style={{ height: '600px' }}>
+                              <iframe
+                                src={iframeUrl}
+                                className="w-full h-full rounded-xl"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; camera; encrypted-media; geolocation; gyroscope; payment"
+                                allowFullScreen
+                              />
+                            </div>
                           </div>
                         </div>
                       )}

@@ -78,29 +78,44 @@ const Order = () => {
     fetchOrders();
   }, [navigate]);
 
-  const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case 'unpaid':
-        return 'text-red-600';
-      case 'delivering':
-        return 'text-yellow-600';
-      case 'arrived':
-        return 'text-green-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
+  // Add this near your other useEffect hooks
+  useEffect(() => {
+    const handleBackButton = (e) => {
+      e.preventDefault();
+      navigate('/menu');
+    };
+
+    window.addEventListener('popstate', handleBackButton);
+
+    // Cleanup listener when component unmounts
+    return () => {
+      window.removeEventListener('popstate', handleBackButton);
+    };
+  }, [navigate]);
 
   const getStatusDisplay = (status) => {
     switch (status.toLowerCase()) {
       case 'unpaid':
-        return 'Processing Your Order';
+        return 'Unpaid';  // Change Processing to Unpaid
       case 'delivering':
         return 'Delivering';
       case 'arrived':
         return 'Arrived';
       default:
         return status;
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status.toLowerCase()) {
+      case 'unpaid':
+        return 'text-red-600';  // Make Unpaid status red
+      case 'delivering':
+        return 'text-yellow-600';
+      case 'arrived':
+        return 'text-green-600';
+      default:
+        return 'text-gray-600';
     }
   };
 
@@ -195,43 +210,49 @@ const Order = () => {
 
           <div className="space-y-4">
             {orders.map((order) => (
-              <div key={order.id} className="bg-white rounded-lg shadow-md">
-                <div className="p-4">
+              <div key={order.id} className="bg-white rounded-lg shadow-md p-6">
+                <div className="grid gap-2">
                   <div className="mb-2">
                     <span className="text-gray-600">Order Status: </span>
                     <span className={`font-semibold ${getStatusColor(order.status)}`}>
                       {getStatusDisplay(order.status)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <div className="text-gray-600">
-                        Order No : {order.orderNumber} {/* Use generated order number */}
+                        Order No: <span className="font-medium text-[#4a2b1b]">{order.orderNumber}</span>
                       </div>
                       <div className="text-gray-600">
-                        Order Date: {new Date(order.createdAt).toLocaleDateString('en-US', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric'
-                        })}
+                        Order Date: <span className="font-medium text-[#4a2b1b]">
+                          {new Date(order.createdAt).toLocaleDateString('en-US', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                          })}
+                        </span>
                       </div>
                       <div className="text-gray-600 mt-2">
-                        Total Price: Rp {order.totalPrice.toLocaleString()}
+                        Total Price: <span className="font-medium text-[#4a2b1b]">
+                          Rp {order.totalPrice.toLocaleString()}
+                        </span>
                       </div>
                     </div>
-                    <button
-                      onClick={() => navigate(`/order/${order.id}`)}
-                      className="px-4 py-2 bg-[#6d4c2b] text-white rounded hover:bg-[#4a2b1b] transition-colors"
-                    >
-                      View Details
-                    </button>
+                    <div className="flex justify-end items-end">
+                      <button
+                        onClick={() => navigate(`/order/${order.id}`)}
+                        className="px-4 py-2 bg-[#6d4c2b] text-white rounded hover:bg-[#4a2b1b] transition-colors"
+                      >
+                        View Details
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
 
             {orders.length === 0 && (
-              <div className="text-center text-gray-600 py-8">
+              <div className="text-center text-gray-600 py-8 bg-white rounded-lg shadow-md">
                 No orders found
               </div>
             )}
