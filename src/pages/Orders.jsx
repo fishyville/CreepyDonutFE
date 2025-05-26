@@ -188,7 +188,11 @@ const Order = () => {
           <div className="p-4 mt-8">
             <button 
               onClick={() => {
+                localStorage.removeItem('userId');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('token');
                 localStorage.clear();
+
                 navigate('/login');
               }}
               className="flex items-center w-full p-3 text-[#4a2b1b] hover:bg-[#6d4c2b] hover:text-white rounded transition-colors"
