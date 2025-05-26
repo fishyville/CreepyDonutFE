@@ -29,6 +29,7 @@ const Cart = () => {
   const [showQRCode, setShowQRCode] = useState(false);
   const [snapToken, setSnapToken] = useState(null);
   const [iframeUrl, setIframeUrl] = useState(null); // Add this state
+  const [paymentStatus, setPaymentStatus] = useState(null); // Add new state for payment status
   const userId = localStorage.getItem('userId');
 
   const navigate = useNavigate();
@@ -150,6 +151,30 @@ const Cart = () => {
     setShowConfirmation(true);
   };
 
+  // Update the updateOrderStatus function
+  const updateOrderStatus = async (orderId, status) => {
+    try {
+      const response = await fetch(`https://localhost:7002/api/Orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'UserId': localStorage.getItem('userId')
+        },
+        body: JSON.stringify({
+          status: status  // This matches the API's expected format
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update order status');
+      }
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      throw error;
+    }
+  };
+
   // Update handleConfirm function to create a new cart first, then create the order
   const handleConfirm = async (isLater) => {
     setShowConfirmation(false);
@@ -196,34 +221,13 @@ const Cart = () => {
       const orderResult = await orderResponse.json();
       console.log('Order created:', orderResult);
 
-      // Create new cart
-      const newCartResponse = await fetch(`https://localhost:7002/api/cart/${currentUserId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'UserId': currentUserId
-        }
-      });
-
-      if (!newCartResponse.ok) {
-        throw new Error('Failed to create new cart');
-      }
-
-      const newCartData = await newCartResponse.json();
-
-      // Update state with new cart
-      setCartId(newCartData.id);
-      setCartItems([]);
-      setTotalPrice(0);
-      
-      // Update navbar cart counter
-      window.dispatchEvent(new Event('cartUpdated'));
-
       if (!isLater) {
+        // Update order status to Processing
+        await updateOrderStatus(orderResult.id, "Processing");
+
         // Get snap token for payment
-        const nameParts = userName?.split(' ') || ['', '']; // Split name into parts
+        const nameParts = userName?.split(' ') || ['', '']; 
         const firstName = nameParts[0];
-        const lastName = nameParts.slice(1).join(' '); // Join remaining parts as last name
 
         const snapResponse = await fetch('https://localhost:7002/payment/get-snap-token', {
           method: 'POST',
@@ -248,9 +252,8 @@ const Cart = () => {
         const snapData = await snapResponse.json();
         setIframeUrl(`https://app.sandbox.midtrans.com/snap/v4/redirection/${snapData.token}`);
         setShowQRCode(true);
-        setShowConfirmation(false);
       } else {
-        navigate('/order');
+        navigate('/orders');
       }
 
     } catch (error) {
@@ -564,8 +567,14 @@ const Cart = () => {
                             <div className="flex justify-end space-x-4">
                               <button
                                 onClick={async () => {
-                                  await handleConfirm(true);
-                                  navigate('/orders');
+                                  try {
+                                    const orderResponse = await handleConfirm(true);
+                                    await updateOrderStatus(orderResponse.id, "Unpaid");
+                                    navigate('/orders');
+                                  } catch (error) {
+                                    console.error('Error:', error);
+                                    alert('Failed to process order');
+                                  }
                                 }}
                                 className="px-4 py-2 border border-gray-300 rounded-full hover:bg-gray-900 hover:text-white"
                               >
@@ -573,7 +582,14 @@ const Cart = () => {
                               </button>
                               <button
                                 onClick={async () => {
-                                  await handleConfirm(false); // This triggers the QR code generation
+                                  try {
+                                    const orderResponse = await handleConfirm(false);
+                                    await updateOrderStatus(orderResponse.id, "Processing");
+                                    setShowQRCode(true);
+                                  } catch (error) {
+                                    console.error('Error:', error);
+                                    alert('Failed to process order');
+                                  }
                                 }}
                                 className="px-4 py-2 bg-[#9a2b1b] text-white rounded-full hover:bg-[#2a1b0b]"
                               >
@@ -591,52 +607,9 @@ const Cart = () => {
                             <div className="flex justify-between items-center mb-4">
                               <h3 className="text-lg font-bold">Payment</h3>
                               <button 
-                                onClick={async () => {
-                                  try {
-                                    const orderId = orderResult.id;
-                                    // First update the order status
-                                    const updateResponse = await fetch(`https://localhost:7002/api/Orders/${orderId}`, {
-                                      method: 'PUT',
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json',
-                                        'UserId': localStorage.getItem('userId')
-                                      },
-                                      body: JSON.stringify({
-                                        id: orderId,
-                                        userId: parseInt(localStorage.getItem('userId')),
-                                        cartId: cartId,
-                                        totalPrice: parseFloat((totalPrice * 1.1 - 15000).toFixed(2)),
-                                        status: "Unpaid", // Make sure this matches exactly what your backend expects
-                                        paymentMethod: "Direct Payment",
-                                        shippingAddress: `${shippingAddress.name}, ${shippingAddress.address}, ${shippingAddress.city} ${shippingAddress.postalCode}`,
-                                        orderItems: cartItems.map(item => ({
-                                          productId: item.productId,
-                                          quantity: item.quantity,
-                                          price: item.price,
-                                          status: "Unpaid" // Add status here as well if needed
-                                        }))
-                                      })
-                                    });
-
-                                    if (!updateResponse.ok) {
-                                      throw new Error('Failed to update order status');
-                                    }
-
-                                    // Get the updated order to verify the status
-                                    const updatedOrder = await updateResponse.json();
-                                    console.log('Updated order:', updatedOrder); // Debug log
-
-                                    // Close popup and redirect
-                                    setShowQRCode(false);
-                                    navigate('/orders', { replace: true }); // Use replace to force a fresh load
-
-                                  } catch (error) {
-                                    console.error('Error updating order:', error);
-                                    // Still redirect even if update fails
-                                    setShowQRCode(false);
-                                    navigate('/orders', { replace: true });
-                                  }
+                                onClick={() => {
+                                  setShowQRCode(false);
+                                  navigate('/orders');
                                 }}
                                 className="text-gray-500 hover:text-gray-700"
                               >
@@ -648,8 +621,8 @@ const Cart = () => {
                                 src={iframeUrl}
                                 className="w-full h-full rounded-xl"
                                 frameBorder="0"
-                                allow="accelerometer; autoplay; camera; encrypted-media; geolocation; gyroscope; payment"
-                                allowFullScreen
+                                sandbox="allow-scripts allow-same-origin allow-forms"
+                                allow="payment"
                               />
                             </div>
                           </div>
