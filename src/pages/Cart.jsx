@@ -29,6 +29,7 @@ const Cart = () => {
   const [showQRCode, setShowQRCode] = useState(false);
   const [snapToken, setSnapToken] = useState(null);
   const [iframeUrl, setIframeUrl] = useState(null); // Add this state
+  const [paymentStatus, setPaymentStatus] = useState(null); // Add new state for payment status
   const userId = localStorage.getItem('userId');
 
   const navigate = useNavigate();
@@ -594,52 +595,9 @@ const Cart = () => {
                             <div className="flex justify-between items-center mb-4">
                               <h3 className="text-lg font-bold">Payment</h3>
                               <button 
-                                onClick={async () => {
-                                  try {
-                                    const orderId = orderResult.id;
-                                    // First update the order status
-                                    const updateResponse = await fetch(`https://localhost:7002/api/Orders/${orderId}`, {
-                                      method: 'PUT',
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json',
-                                        'UserId': localStorage.getItem('userId')
-                                      },
-                                      body: JSON.stringify({
-                                        id: orderId,
-                                        userId: parseInt(localStorage.getItem('userId')),
-                                        cartId: cartId,
-                                        totalPrice: parseFloat((totalPrice * 1.1 - 15000).toFixed(2)),
-                                        status: "Unpaid", // Make sure this matches exactly what your backend expects
-                                        paymentMethod: "Direct Payment",
-                                        shippingAddress: `${shippingAddress.name}, ${shippingAddress.address}, ${shippingAddress.city} ${shippingAddress.postalCode}`,
-                                        orderItems: cartItems.map(item => ({
-                                          productId: item.productId,
-                                          quantity: item.quantity,
-                                          price: item.price,
-                                          status: "Unpaid" // Add status here as well if needed
-                                        }))
-                                      })
-                                    });
-
-                                    if (!updateResponse.ok) {
-                                      throw new Error('Failed to update order status');
-                                    }
-
-                                    // Get the updated order to verify the status
-                                    const updatedOrder = await updateResponse.json();
-                                    console.log('Updated order:', updatedOrder); // Debug log
-
-                                    // Close popup and redirect
-                                    setShowQRCode(false);
-                                    navigate('/orders', { replace: true }); // Use replace to force a fresh load
-
-                                  } catch (error) {
-                                    console.error('Error updating order:', error);
-                                    // Still redirect even if update fails
-                                    setShowQRCode(false);
-                                    navigate('/orders', { replace: true });
-                                  }
+                                onClick={() => {
+                                  setShowQRCode(false);
+                                  navigate('/orders');
                                 }}
                                 className="text-gray-500 hover:text-gray-700"
                               >
@@ -651,8 +609,8 @@ const Cart = () => {
                                 src={iframeUrl}
                                 className="w-full h-full rounded-xl"
                                 frameBorder="0"
-                                allow="accelerometer; autoplay; camera; encrypted-media; geolocation; gyroscope; payment"
-                                allowFullScreen
+                                sandbox="allow-scripts allow-same-origin allow-forms"
+                                allow="payment"
                               />
                             </div>
                           </div>
