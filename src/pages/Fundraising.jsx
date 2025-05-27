@@ -1,11 +1,40 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './App.css';
-import Navbar from '../component/Navbar'; // Import the Navbar component
-import Footer from '../component/Footer'; // Import the Footer component
+import Navbar from '../component/Navbar';
+import Footer from '../component/Footer';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import cat1 from '../assets/cat-1.png';
+import cat1blue from '../assets/cat-1blue.png';
+import cat2 from '../assets/cat-2.png';
+import cat2blue from '../assets/cat-2blue.png';
+import cat3blue from '../assets/cat-3blue.png';
+import catHero from '../assets/cat-hero.png';
+import catHero2 from '../assets/cat-hero2.png';
+import catHero3 from '../assets/cat-hero3.png';
+import cat3 from '../assets/cat3.png';
+import facebookLogo from '../assets/Facebook-Logo.png';
+import googleLogo from '../assets/Google-Logo.png';
+import homeCard from '../assets/HomeCard.png';
+import homeCard2 from '../assets/HomeCard.png';
+import homeCard2Blur from '../assets/HomeCard2Blur.png';
+import homeCardBlur from '../assets/HomeCardBlur.png';
+import homeDonut1 from '../assets/HomeDonut-1.png';
+import homeDonut2 from '../assets/HomeDonut-2.png';
+import homeDonut3 from '../assets/HomeDonut-3.png';
+import homeDonut4 from '../assets/HomeDonut-4.png';
+import homeDonut5 from '../assets/HomeDonut-5.png';
+import homeDonut6 from '../assets/HomeDonut-6.png';
+import instagramLogo from '../assets/Instagram-Logo.png';
+import lineLogo from '../assets/LINE-Logo.png';
+import menuHero from '../assets/MenuHero.png';
+import sweetsDivider from '../assets/SweetsDivider.png';
+import xLogo from '../assets/X-Logo.png.webp';
+import youtubeLogo from '../assets/Youtube-Logo.png';
+import paw from '../assets/paw.png';
+import { useState } from 'react';
 
 function Fundraising() {
   const userId = localStorage.getItem('userId');
@@ -25,35 +54,33 @@ function Fundraising() {
     ),
     customPaging: i => (
       <div 
-        className="w-2 h-2 mx-1 rounded-full bg-white transition-all duration-300 hover:bg-[#FEAEAE] hover:shadow-[0_0_10px_#FEAEAE]" 
+        className="w-2 h-2 mx-1 rounded-full bg-white transition-all duration-300"
         style={{ opacity: '0.5' }}
-      >
-      </div>
+      />
     ),
-    dotsClass: "slick-dots flex justify-center items-center gap-2"
+    dotsClass: "slick-dots flex justify-center items-center gap-2 custom-slick-dots"
   };
 
   const slides = [
     {
-      image: '/cat-hero.jpg',
-      title: 'Asking for Your Help!'
-    },
-    {
-      image: '/cat-hero-2.jpg',
+      image: catHero2,
       title: 'We Want Snacks!'
     },
     {
-      image: '/cat-hero-3.jpg',
+      image: catHero,
       title: 'We Need Shelter!'
+    },
+    {
+      image: catHero3,
+      title: 'Asking for Your Help!',
+      textPosition: 'items-start justify-end pr-20 pt-32'
     }
   ];
 
   return (
     <div className="min-h-screen flex flex-col pt-16">
-      {/* Navbar */}
       <Navbar />
 
-      {/* Hero Section with Slider */}
       <div className="relative h-[400px]">
         <Slider {...settings}>
           {slides.map((slide, index) => (
@@ -63,20 +90,25 @@ function Fundraising() {
                 alt={slide.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-purple-200 bg-opacity-40 flex items-center justify-start pl-20">
-                <h1 className="text-white text-5xl font-bold">{slide.title}</h1>
+              <div
+                className={`absolute inset-0 bg-opacity-40 flex ${
+                  slide.textPosition && slide.title === 'Asking for Your Help!'
+                    ? slide.textPosition
+                    : 'items-center justify-start pl-20'
+                }`}
+              >
+                <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-bold">
+                  {slide.title}
+                </h1>
               </div>
             </div>
           ))}
         </Slider>
       </div>
 
-      {/* Main Content */}
       <div className="flex-grow bg-[#FDF6E9] p-4 sm:p-6 md:p-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-          {/* Left Content */}
           <div className="lg:col-span-2 flex flex-col">
-            {/* Hero Message Box */}
             <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-md mb-4 md:mb-8 h-auto md:h-[400px] flex flex-col">
               <div className="space-y-8 md:space-y-16">
                 <div>
@@ -92,26 +124,28 @@ function Fundraising() {
               </div>
             </div>
 
-            {/* Cat Images Section */}
             <div className="flex-grow space-y-4">
-              <div className="bg-white rounded-lg shadow-md p-3 sm:p-4">
-                <img src="/cat-1.jpg" alt="Cat" className="w-full h-32 sm:h-45 object-cover rounded-lg" />
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-3 sm:p-4">
-                <img src="/cat-2.jpg" alt="Cat" className="w-full h-32 sm:h-45 object-cover rounded-lg" />
-              </div>
-              <div className="bg-white rounded-lg shadow-md p-3 sm:p-4">
-                <img src="/cat-3.jpg" alt="Cat" className="w-full h-32 sm:h-45 object-cover rounded-lg" />
-              </div>
+              {[{ normal: cat1, hover: cat1blue }, { normal: cat2, hover: cat2blue }, { normal: cat3, hover: cat3blue }].map((cat, index) => {
+                const [isHovered, setIsHovered] = useState(false);
+                return (
+                  <div key={index} className="bg-white rounded-lg shadow-md p-3 sm:p-4">
+                    <img
+                      src={isHovered ? cat.hover : cat.normal}
+                      alt={`Cat ${index + 1}`}
+                      className="w-full h-32 sm:h-45 object-cover rounded-lg transition duration-300"
+                      onMouseEnter={() => setIsHovered(true)}
+                      onMouseLeave={() => setIsHovered(false)}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Right Sidebar */}
           <div className="lg:col-span-1 space-y-4 sm:space-y-6">
-            {/* Donation Box */}
             <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md text-center h-auto sm:h-[400px]">
               <div className="w-16 sm:w-20 h-16 sm:h-20 mx-auto mb-6 sm:mb-8 bg-brown-600 rounded-full flex items-center justify-center">
-                <img src="/paw-icon.png" alt="Paw" className="w-10 sm:w-12 h-10 sm:h-12" />
+                <img src={paw} alt="Paw" className="w-10 sm:w-20 h-10 sm:h-14" />
               </div>
               <div className="mt-8 sm:mt-12">
                 <h3 className="text-xl sm:text-2xl font-bold">Rp. 2.500.000</h3>
@@ -126,7 +160,6 @@ function Fundraising() {
               </button>
             </div>
 
-            {/* Supporters List */}
             <div className="bg-white p-4 sm:p-6 md:p-8 rounded-lg h-auto sm:h-[676px] shadow-md">
               <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 border-b pb-2">Supporters</h2>
               <div className="space-y-3 sm:space-y-4">
@@ -144,30 +177,56 @@ function Fundraising() {
                 ))}
               </div>
 
-              {/* Social Links */}
-              <div className="text-center mt-4 sm:mt-5">
-                <p className="text-xs sm:text-sm mb-3 sm:mb-4 font-medium">Check out other fundraisers here!</p>
-                <div className="flex justify-center gap-3 sm:gap-4">
-                  <a href="#" className="text-[#1877F2]">
-                    <img src="/facebook-icon.png" alt="Facebook" className="w-6 h-6 sm:w-8 sm:h-8" />
-                  </a>
-                  <a href="#" className="text-black">
-                    <img src="/x-icon.png" alt="X" className="w-6 h-6 sm:w-8 sm:h-8" />
-                  </a>
-                  <a href="#" className="text-[#FF0000]">
-                    <img src="/youtube-icon.png" alt="YouTube" className="w-6 h-6 sm:w-8 sm:h-8" />
-                  </a>
-                  <a href="#" className="text-[#E4405F]">
-                    <img src="/instagram-icon.png" alt="Instagram" className="w-6 h-6 sm:w-8 sm:h-8" />
-                  </a>
-                </div>
-              </div>
+<div className="text-center mt-4 sm:mt-5">
+  <p className="text-xs sm:text-sm mb-3 sm:mb-4 font-medium">Check out other fundraisers here!</p>
+  <div className="flex justify-center gap-3 sm:gap-4">
+    {[
+      {
+        href: "#",
+        color: "text-[#1877F2]",
+        logo: facebookLogo,
+        alt: "Facebook",
+        imgClass: "w-8 h-8 sm:w-7 sm:h-7" // ukuran khusus Facebook
+      },
+      {
+        href: "#",
+        color: "text-black",
+        logo: xLogo,
+        alt: "X",
+        imgClass: "w-7 h-7 sm:w-10 sm:h-10" // ukuran khusus X
+      },
+      {
+        href: "#",
+        color: "text-[#FF0000]",
+        logo: youtubeLogo,
+        alt: "YouTube",
+        imgClass: "w-9 h-9 sm:w-8 sm:h-8" // ukuran khusus YouTube
+      },
+      {
+        href: "#",
+        color: "text-[#E4405F]",
+        logo: instagramLogo,
+        alt: "Instagram",
+        imgClass: "w-8 h-8 sm:w-20 sm:h-20" // ukuran khusus Instagram
+      }
+    ].map((item, idx) => (
+      <a key={item.alt} href={item.href} className={item.color}>
+        <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-white shadow">
+          <img
+            src={item.logo}
+            alt={item.alt}
+            className={`${item.imgClass} object-contain aspect-square`}
+          />
+        </div>
+      </a>
+    ))}
+  </div>
+</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

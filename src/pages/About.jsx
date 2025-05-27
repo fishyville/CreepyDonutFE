@@ -29,21 +29,20 @@ const AboutUs = () => {
         </div>
 
         {/* Logo creepy donut atas*/}
-            <div className="relative">
-              <div className="relative h-79 w-74 translate-y-18 left-295">
-                <img
-                  src="https://files.catbox.moe/hc034q.png"
-                  alt="Decorative Donut"
-                  className="w-full h-full object-contain"
-                />
-              </div>
-            </div>
+        <div className="relative">
+          <div className="relative h-79 w-74 translate-y-18 left-295">
+            <img
+              src="https://files.catbox.moe/hc034q.png"
+              alt="Decorative Donut"
+              className="w-full h-full object-contain"
+            />
+          </div>
+        </div>
 
         {/* Content Section */}
         <div className="bg-[#FDF6E9]">
           {/* Our Story Section */}
           <div className="flex flex-wrap">
-            {/* Top Row bagian atas */}
             <div className="flex w-full">
               <div className="w-1/3 bg-[#AA7841] p-8 flex justify-end items-center h-[400px]">
                 <div
@@ -55,11 +54,11 @@ const AboutUs = () => {
                   </h2>
                 </div>
               </div>
-              <div className="w-2/3 bg-[#E2BE8C] p-12 text-right relative h-[400px] flex items-center">
-                {/* Text Content with Smaller Text */}
-                {/* Our Story Text Content */}
+
+              <div className="w-2/3 bg-[#E2BE8C] p-6 sm:p-8 md:p-12 text-right relative h-[400px] flex items-center overflow-hidden">
                 <div
-                  className="max-w-3xl ml-auto space-y-4 text-[#4A2B1B] text-sm sm:text-base md:text-2xl w-full pr-2 relative z-20"
+                  className="max-w-full ml-auto space-y-4 text-[#4A2B1B] text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl w-full pr-2 relative z-20 overflow-y-auto max-h-[350px]"
+
                   style={{ fontFamily: '"Times New Roman", Times, serif' }}
                 >
                   <p>
@@ -77,7 +76,7 @@ const AboutUs = () => {
 
             {/* Bottom Row atas */}
             <div className="flex w-full">
-             <div className="w-1/2 h-[300px] relative">
+              <div className="w-1/2 h-[300px] relative">
                 <img 
                   src="https://files.catbox.moe/fhqfiz.png" 
                   alt="Creepy Donuts" 
@@ -103,30 +102,15 @@ const AboutUs = () => {
 
           {/* Our Goal Section */}
           <div className="flex flex-col">
-            {/* Top Row bagian bawah */}
-            <div className="flex h-[300px]">
-              <div className="w-1/2 bg-[#4A2B1B] p-8 flex items-end justify-end"> {/* Changed from w-1/3 to w-1/2 */}
-                <h2 className="text-4xl font-bold text-white">Creepy Donut</h2>
-              </div>
-              <div className="w-1/2 relative"> {/* Changed from w-2/3 to w-1/2 */}
-                <img 
-                  src="https://files.catbox.moe/z5la6b.png" 
-                  alt="Creepy Donuts" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-            
-            {/* Bottom Row bagian bawah */}
-            <div className="flex h-[300px]">
+            <div className="flex h-[400px]">
               <div className="w-1/3 bg-[#AA7841] p-8 flex justify-end items-center">
                 <div className="transform -rotate-90 origin-center translate-x-16">
                   <h2 className="text-4xl font-bold text-white whitespace-nowrap">OUR GOAL</h2>
                 </div>
               </div>
-              <div className="w-2/3 bg-[#E2BE8C] p-12">
+              <div className="w-2/3 bg-[#E2BE8C] p-6 sm:p-8 md:p-12 flex items-center overflow-hidden">
                 <p 
-                  className="text-[#4A2B1B] text-sm sm:text-base md:text-2xl leading-relaxed max-w-3xl" 
+                  className="text-[#4A2B1B] text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl leading-relaxed max-w-full overflow-y-auto max-h-[350px]" 
                   style={{ fontFamily: '"Times New Roman", Times, serif' }}
                 >
                   At Creepy Donut, our goal is to bring a frightfully fun twist to your sweet tooth. We craft donuts that are as spooky as they are delicious — from ghost-glazed classics to blood-dripped delights. Whether it's October or you're just feeling a little wicked, we're here to serve up creepy confections that turn every bite into a hauntingly tasty experience. Our mission? To make every day feel like a thrill, one donut at a time.
@@ -138,7 +122,7 @@ const AboutUs = () => {
             <div className="relative z-10 right-150">
               <div className="w-68 h-58 overflow-visible mx-auto -translate-y-12">
                 <img 
-                  src="https://files.catbox.moe/dgxm5m.png" // Replace with your donut image
+                  src="https://files.catbox.moe/dgxm5m.png"
                   alt="Decorative Donut"
                   className="w-full h-full object-contain"
                 />
@@ -153,4 +137,4 @@ const AboutUs = () => {
   );
 };
 
-export default AboutUs;
+export default AboutUs;

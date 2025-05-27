@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Menu, ChevronDown, Home, ShoppingCart, ClipboardList, LogIn } from 'lucide-react';
 
 import { Link, useNavigate } from 'react-router-dom';
+import LogoNavbar from '../assets/LogoNavbar.png';
 
 const Navbar = ({ cartCount = 0 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -59,6 +60,12 @@ const Navbar = ({ cartCount = 0 }) => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('userId');
+    setIsLoggedIn(false);
+    navigate('/login');
+  };
+
   return (
     <nav className="bg-[#f2d9b1] shadow-lg fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -66,9 +73,11 @@ const Navbar = ({ cartCount = 0 }) => {
           {/* Logo */}
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">CD</span>
-              </div>
+              <img
+                src={LogoNavbar}
+                alt="CreepyDonut Logo"
+                className="w-10 h-10 object-cover rounded-full"
+              />
             </div>
           </div>
 
@@ -148,6 +157,12 @@ const Navbar = ({ cartCount = 0 }) => {
               {isLoggedIn ? (
                 <div className="flex items-center space-x-6">
                   <span className="text-gray-700 font-medium">Welcome!</span>
+                  <button 
+                    onClick={handleLogout}
+                    className="text-[#8C2F39] hover:text-red-800 font-medium transition-colors"
+                  >
+                    Logout
+                  </button>
                 </div>
               ) : (
                 <>
@@ -181,45 +196,80 @@ const Navbar = ({ cartCount = 0 }) => {
         </div>
 
         {/* Mobile menu */}
-        {isMenuOpen && (
-          <div className="md:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-amber-50 rounded-lg mt-2">
-              <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md">
-                MENU
-              </a>
-              <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md">
-                FUNDRAISING
-              </a>
-              <a href="#" className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md">
-                ABOUT US
-              </a>
-              {/* Mobile menu auth links */}
-              <div className="border-t border-amber-200 pt-3 mt-3">
-                {isLoggedIn ? (
-                  <div className="px-3 py-2">
-                    <span className="block text-base font-medium text-gray-700 mb-2">Welcome!</span>
-                    
-                  </div>
-                ) : (
-                  <>
-                    <Link 
-                      to="/login" 
-                      className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md"
-                    >
-                      Login
-                    </Link>
-                    <Link 
-                      to="/register" 
-                      className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-amber-100 rounded-md"
-                    >
-                      Register
-                    </Link>
-                  </>
-                )}
-              </div>
-            </div>
+      {isMenuOpen && (
+        <div className="fixed inset-y-0 right-0 z-50 w-64 bg-gradient-to-b from-[#f2d9b1] to-white shadow-2xl p-5 rounded-l-2xl overflow-y-auto transition-transform duration-300">
+          
+          {/* Header */}
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold text-[#4a2b1b]">Creepy Donut</h2>
+            <button
+              onClick={() => setIsMenuOpen(false)}
+              className="text-[#4a2b1b] hover:text-red-500 text-2xl font-bold focus:outline-none"
+            >
+              × 
+            </button>
           </div>
-        )}
+
+          {/* Navigation Links */}
+          <nav className="space-y-3">
+            <Link 
+              to="/menu" 
+              onClick={() => setIsMenuOpen(false)}
+              className="block px-3 py-2 bg-white text-[#4a2b1b] font-semibold rounded-lg shadow-sm hover:bg-amber-100 transition"
+            >
+              🍩 MENU
+            </Link>
+            <Link 
+              to="/fundraising" 
+              onClick={() => setIsMenuOpen(false)}
+              className="block px-3 py-2 bg-white text-[#4a2b1b] font-semibold rounded-lg shadow-sm hover:bg-amber-100 transition"
+            >
+              🎉 FUNDRAISING
+            </Link>
+            <Link 
+              to="/about" 
+              onClick={() => setIsMenuOpen(false)}
+              className="block px-3 py-2 bg-white text-[#4a2b1b] font-semibold rounded-lg shadow-sm hover:bg-amber-100 transition"
+            >
+              📖 ABOUT US
+            </Link>
+
+            <div className="border-t border-amber-300 mt-5 pt-4">
+              {isLoggedIn ? (
+                <>
+                  <span className="block px-2 text-[#4a2b1b] font-medium">Welcome!</span>
+                  <button 
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="mt-2 w-full px-3 py-2 bg-[#fceced] text-[#8C2F39] font-semibold rounded-lg shadow-sm hover:bg-[#f8dadc] transition"
+                  >
+                    🚪 Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link 
+                    to="/login" 
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-3 py-2 bg-white text-[#4a2b1b] font-semibold rounded-lg shadow-sm hover:bg-amber-100 transition"
+                  >
+                    🔐 Login
+                  </Link>
+                  <Link 
+                    to="/register" 
+                    onClick={() => setIsMenuOpen(false)}
+                    className="block px-3 py-2 bg-white text-[#4a2b1b] font-semibold rounded-lg shadow-sm hover:bg-amber-100 transition"
+                  >
+                    📝 Register
+                  </Link>
+                </>
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
       </div>
       {showEmptyCartPopup && (
       <div className="fixed inset-0 backdrop-blur-[10px] flex items-center justify-center z-50">
@@ -229,7 +279,7 @@ const Navbar = ({ cartCount = 0 }) => {
           </h2>
           <button 
             onClick={() => setShowEmptyCartPopup(false)} 
-            className="mt-2 px-4 py-2 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors"
+            className="mt-2 px-4 py-2 bg-[#F2D9B1] text-[#3B2E25] rounded-full hover:bg-[#6B4E35] hover:text-[#FEF2DD] transition-colors"
           >
             Okay
           </button>

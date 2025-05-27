@@ -1,5 +1,6 @@
 import React from 'react';
 import { Copyright, Facebook, InstagramIcon, MessageSquare, Video, Mail, MapPin, Phone } from 'lucide-react';
+import { href, Link } from 'react-router-dom';
 
 export default function Footer() {
   const socialLinks = [
@@ -9,8 +10,18 @@ export default function Footer() {
     { icon: <Facebook className="w-5 h-5 text-[#f2d9b1]" />, label: "Facebook" },
   ];
 
-  const helpLinks = ["FAQ", "Our Service", "About Us", "Order Status"];
-  const storeLinks = ["Store Events", "Store Hours", "Creepy Store Supports", "Seasonal Specials"];
+  const helpLinks = [
+    { label: "FAQ", href: "#" },
+    { label: "Our Service", href: "/" },
+    { label: "About Us", href: "/about" },
+    { label: "Order Status", href: "/orders" },
+  ];
+  const storeLinks = [
+    { label: "Store Events", href: "/" },
+    { label: "Store Hours", href: "/" },
+    { label: "Creepy Store Supports", href: "#" }, // kalau belum ada halaman
+    { label: "Seasonal Specials", href: "/" },
+  ];
 
   const contactInfo = [
     { icon: <Mail className="w-4 h-4" />, text: "creepydonut@gmail.com" },
@@ -47,15 +58,19 @@ export default function Footer() {
           <div className="md:col-span-1">
             <h3 className="text-2xl font-bold text-[#4a2b1b] mb-3">Get Help</h3>
             <div className="w-16 h-1 bg-[#4a2b1b] mb-4"></div>
-            <ul className="space-y-3">
-              {helpLinks.map((link, index) => (
-                <li key={index}>
-                  <a href="#" className="text-sm text-[#060606] hover:text-[#EB7C7B] transition-colors">
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
+<ul className="space-y-3">
+  {helpLinks.map((link, index) => (
+    <li key={index}>
+      <Link
+        to={link.href}
+        className="text-sm text-[#060606] hover:text-[#EB7C7B] hover:underline transition-colors"
+      >
+        {link.label}
+      </Link>
+    </li>
+  ))}
+</ul>
+
           </div>
 
           {/* Creepy Store Section */}
@@ -65,9 +80,12 @@ export default function Footer() {
             <ul className="space-y-3">
               {storeLinks.map((link, index) => (
                 <li key={index}>
-                  <a href="#" className="text-sm text-[#060606] hover:text-[#EB7C7B] transition-colors">
-                    {link}
-                  </a>
+                  <Link
+                    to={link.href}
+                    className="text-sm text-[#060606] hover:text-[#EB7C7B] hover:underline transition-colors"
+                  >
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
