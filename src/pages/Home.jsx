@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
@@ -22,6 +22,16 @@ import ChatBot from '../component/Chatbot';
 
 export default function Home() {
   const navigate = useNavigate();
+  const [showPopup, setShowPopup] = useState(false);
+
+  // Fungsi untuk handle klik tombol
+  const handleOrderClick = () => {
+    setShowPopup(true);
+    setTimeout(() => {
+      setShowPopup(false);
+      navigate('/menu');
+    }, 900); // 900ms sesuai animasi
+  };
 
   return (
     <ReactLenis root options={{ 
@@ -289,6 +299,7 @@ export default function Home() {
                   style={{ backgroundColor: '#000000', color: '#FEF2DE' }}
                   onMouseEnter={(e) => e.target.style.backgroundColor = '#3B2E25'}
                   onMouseLeave={(e) => e.target.style.backgroundColor = '#000000'}
+                  onClick={handleOrderClick}
                 >
                   <span>Order Now</span>
                   <div className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
@@ -306,34 +317,83 @@ export default function Home() {
         <section className="py-16 px-8" style={{ backgroundColor: '#3B2E25' }}>
           <div className="max-w-6xl mx-auto text-center">
             <h3 className="text-3xl font-bold mb-2" style={{ color: '#F2D9B1' }}>Pick Me Up</h3>
-            <p className="text-xl italic mb-12" style={{ color: '#F2D9B1' }}>~edition~</p>
+            <p className="text-xl italic mb-12" style={{ color: '#F2D9B1' }}>edition</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+                <div
+                  key={i}
+                  className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col cursor-pointer transition-transform duration-300 group"
+                  style={{ transform: 'scale(1)' }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.06)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  onClick={handleOrderClick}
+                >
                   <div className="w-full h-64">
                     <img
                       src={gula}
                       alt="Glazed Doughnut"
-                      className="object-cover w-full h-full"
+                      className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                   <div className="p-4 text-left flex flex-col flex-1 justify-between" style={{ backgroundColor: '#FEF2DE' }}>
                     <div>
                       <h4 className="font-bold mb-2" style={{ color: '#4A2B1B' }}>Glazed Doughnut</h4>
                     </div>
-                    <button 
-                      className="transition-colors text-sm mt-4 text-left"
-                      style={{ color: '#6B4E35' }}
-                      onMouseEnter={(e) => e.target.style.color = '#4A2B1B'}
-                      onMouseLeave={(e) => e.target.style.color = '#6B4E35'}
+                    <button
+                      className="transition-all duration-200 text-sm mt-4 font-semibold rounded-full px-8 py-3 flex items-center justify-start gap-3"
+                      style={{
+                        color: '#6B4E35',
+                        backgroundColor: '#FEF2DE',
+                        boxShadow: '0 2px 8px #0001',
+                        border: '2px solid #E3C295',
+                        outline: 'none',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={e => {
+                        e.stopPropagation();
+                        e.target.style.backgroundColor = '#E3C295';
+                        e.target.style.color = '#4A2B1B';
+                        e.target.style.boxShadow = '0 4px 16px #E3C29555';
+                        e.target.style.transform = 'scale(1.04)';
+                      }}
+                      onMouseLeave={e => {
+                        e.stopPropagation();
+                        e.target.style.backgroundColor = '#FEF2DE';
+                        e.target.style.color = '#6B4E35';
+                        e.target.style.boxShadow = '0 2px 8px #0001';
+                        e.target.style.transform = 'scale(1)';
+                      }}
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleOrderClick();
+                      }}
                     >
-                      Order Now →
+                      <span className="text-left flex-1">Order Now →</span>
                     </button>
                   </div>
                 </div>
               ))}
             </div>
           </div>
+          {/* Popup animasi */}
+          {showPopup && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
+              <div className="bg-white rounded-2xl shadow-2xl px-10 py-6 text-2xl font-bold text-[#4A2B1B] animate-popup">
+                Redirecting to Menu...
+              </div>
+              <style>{`
+                @keyframes popup {
+                  0% { transform: scale(0.8); opacity: 0; }
+                  40% { transform: scale(1.05); opacity: 1; }
+                  70% { transform: scale(0.98); }
+                  100% { transform: scale(1); opacity: 1; }
+                }
+                .animate-popup {
+                  animation: popup 0.9s cubic-bezier(.4,2,.6,1) both;
+                }
+              `}</style>
+            </div>
+          )}
         </section>
 
         {/* Best Sellers */}

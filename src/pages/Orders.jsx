@@ -4,6 +4,8 @@ import { ShoppingBag, User, Lock, History, LogOut } from 'lucide-react';
 import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
 
+const POLLING_INTERVAL = 10000; // Poll every 10 seconds instead of 5 seconds
+
 const generateOrderNumber = () => {
   const prefix = 'CD'; // CD for Creepy Donut
   const timestamp = new Date().getTime().toString().slice(-6); // Last 6 digits of timestamp
@@ -27,6 +29,42 @@ const parseShippingAddress = (addressString) => {
   } catch (error) {
     console.error('Error parsing address:', error);
     return null;
+  }
+};
+
+// First, update the updateOrderStatus function
+const updateOrderStatus = async (orderId, status) => {
+  try {
+    console.log('Updating order:', orderId); // Debug log
+    
+    if (!orderId) {
+      throw new Error('Order ID is required');
+    }
+
+    const response = await fetch(`https://localhost:7002/api/Orders/${orderId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'UserId': localStorage.getItem('userId')
+      },
+      body: JSON.stringify({
+        status: status
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error response:', errorData);
+      throw new Error('Failed to update order status');
+    }
+
+    // Wait for the response to complete
+    await response.json();
+    return true;
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    throw error;
   }
 };
 
@@ -63,7 +101,7 @@ const Order = () => {
 
         if (userResponse.ok) {
           const userData = await userResponse.json();
-          setUserName(userData.username); // Set the username from API response
+          setUserName(userData.username);
         }
 
         // Then fetch orders
@@ -80,16 +118,16 @@ const Order = () => {
         }
 
         const data = await response.json();
-        // Add order numbers to the fetched data
-        const ordersWithNumbers = data.map(order => ({
-          ...order,
-          orderNumber: generateOrderNumber()
-        }));
-        setOrders(ordersWithNumbers);
+        // Filter out finished orders and add order numbers
+        const activeOrders = data
+          .filter(order => order.status !== 'Finished')
+          .map(order => ({
+            ...order,
+            orderNumber: generateOrderNumber()
+          }));
         
-        // Set username from localStorage
-        const name = localStorage.getItem('userName');
-        if (name) setUserName(name);
+        setOrders(activeOrders);
+        
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -98,7 +136,7 @@ const Order = () => {
     };
 
     fetchOrders();
-  }, [navigate]);
+}, [navigate]);
 
   // Add this near your other useEffect hooks
   useEffect(() => {
@@ -115,29 +153,205 @@ const Order = () => {
     };
   }, [navigate]);
 
-  const getStatusDisplay = (status) => {
-    switch (status.toLowerCase()) {
-      case 'unpaid':
-        return 'Unpaid';  // Change Processing to Unpaid
-      case 'delivering':
-        return 'Delivering';
-      case 'arrived':
-        return 'Arrived';
-      default:
-        return status;
-    }
-  };
-
+  // First, update the getStatusColor function
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
       case 'unpaid':
-        return 'text-red-600';  // Make Unpaid status red
+        return 'text-red-600';
+      case 'processing':
+        return 'text-blue-500';
       case 'delivering':
-        return 'text-yellow-600';
+        return 'text-yellow-500';
+      case 'finished':
+        return 'text-purple-600'; // Add color for finished status
       case 'arrived':
         return 'text-green-600';
       default:
         return 'text-gray-600';
+    }
+  };
+
+  // Then update the useEffect that handles status changes
+  useEffect(() => {
+    const updateProcessingOrders = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        
+        // Fetch orders first to ensure we have the latest data
+        const response = await fetch(`https://localhost:7002/api/Orders/user/${userId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch orders');
+        }
+
+        const allOrders = await response.json();
+        
+        // Filter only Processing orders and sort by ID ascending
+        const processingOrders = allOrders
+          .filter(order => order.status === 'Processing') // Changed to match exact case
+          .sort((a, b) => parseInt(a.orderId) - parseInt(b.orderId)); // Changed to orderId
+
+        console.log('Processing orders found:', processingOrders);
+
+        if (processingOrders.length > 0) {
+          const lowestIdOrder = processingOrders[0];
+          
+          if (!lowestIdOrder.orderId) { // Changed to orderId
+            console.error('Invalid order or missing ID:', lowestIdOrder);
+            return;
+          }
+
+          console.log('Found order to update:', lowestIdOrder);
+
+          const timer = setTimeout(async () => {
+            try {
+              const updateResponse = await fetch(`https://localhost:7002/api/Orders/${lowestIdOrder.orderId}/status`, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'UserId': userId
+                },
+                body: JSON.stringify({
+                  status: 'Delivering'
+                })
+              });
+
+              if (!updateResponse.ok) {
+                throw new Error('Failed to update order status');
+              }
+
+              // No need to call setOrders here as the polling will pick up the change
+              console.log('Successfully updated order to Delivering:', lowestIdOrder.orderId);
+
+            } catch (error) {
+              console.error('Error updating status:', error);
+            }
+          }, 10000);
+
+          return () => clearTimeout(timer);
+        }
+      } catch (error) {
+        console.error('Error in updateProcessingOrders:', error);
+      }
+    };
+
+    // Call the function
+    updateProcessingOrders();
+  }, [orders]); // Added orders as dependency
+
+  // Update the useEffect that handles Delivering to Finished status change
+  useEffect(() => {
+    const updateDeliveringOrders = async () => {
+      try {
+        const deliveringOrders = orders
+          .filter(order => order.status === 'Delivering')
+          .sort((a, b) => parseInt(a.orderId) - parseInt(b.orderId));
+
+        if (deliveringOrders.length > 0) {
+          const lowestIdOrder = deliveringOrders[0];
+          
+          const timer = setTimeout(async () => {
+            try {
+              const updateResponse = await fetch(`https://localhost:7002/api/Orders/${lowestIdOrder.orderId}/status`, {
+                method: 'PATCH',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                  'UserId': localStorage.getItem('userId')
+                },
+                body: JSON.stringify({
+                  status: 'Finished'
+                })
+              });
+
+              if (!updateResponse.ok) {
+                throw new Error('Failed to update order status');
+              }
+
+              // No need to manually update orders as polling will handle it
+              console.log('Successfully updated order to Finished:', lowestIdOrder.orderId);
+
+            } catch (error) {
+              console.error('Error updating status:', error);
+            }
+          }, 5000); 
+
+          return () => clearTimeout(timer);
+        }
+      } catch (error) {
+        console.error('Error in updateDeliveringOrders:', error);
+      }
+    };
+
+    // Call the function
+    updateDeliveringOrders();
+  }, [orders]); // Added orders as dependency
+
+  // Add new useEffect for polling
+  useEffect(() => {
+    const pollOrders = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        if (!userId) return;
+
+        const response = await fetch(`https://localhost:7002/api/Orders/user/${userId}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch orders');
+        }
+
+        const data = await response.json();
+        // Filter out finished orders and add order numbers
+        const activeOrders = data
+          .filter(order => order.status !== 'Finished')
+          .map(order => ({
+            ...order,
+            orderNumber: generateOrderNumber()
+          }));
+        
+        setOrders(activeOrders);
+      } catch (error) {
+        console.error('Error polling orders:', error);
+      }
+    };
+
+    // Initial poll
+    pollOrders();
+
+    // Set up polling interval
+    const pollInterval = setInterval(pollOrders, POLLING_INTERVAL);
+
+    // Cleanup
+    return () => clearInterval(pollInterval);
+  }, []); // Empty dependency array as we want this to run only once on mount
+
+  const getStatusDisplay = (status) => {
+    switch (status.toLowerCase()) {
+      case 'unpaid':
+        return 'Unpaid';
+      case 'processing':
+        return 'Processing';
+      case 'delivering':
+        return 'Delivering';
+      case 'finished':
+        return 'Finished';
+      case 'arrived':
+        return 'Arrived';
+      default:
+        return status;
     }
   };
 
@@ -314,8 +528,8 @@ const Order = () => {
       <Footer />
 
       {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <div className="fixed inset-0 backdrop-blur-[10px] bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full relative">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-[#4a2b1b]">Order Summary</h2>
               <button
@@ -325,78 +539,83 @@ const Order = () => {
                 ✕
               </button>
             </div>
-
-            {/* Shipping Address Section */}
-            <div className="mb-6">
-              <h3 className="font-medium text-gray-800 mb-4">Shipping Address</h3>
-              {selectedOrder && parseShippingAddress(selectedOrder.shippingAddress) && (
-                <div className="grid gap-4">
-                  <div className="grid grid-cols-2 gap-4">
+            {/* Konten scrollable dengan custom scrollbar */}
+            <div
+              style={{ maxHeight: '60vh', overflowY: 'auto' }}
+              className="custom-scrollbar"
+            >
+              {/* Shipping Address Section */}
+              <div className="mb-6">
+                <h3 className="font-medium text-gray-800 mb-4">Shipping Address</h3>
+                {selectedOrder && parseShippingAddress(selectedOrder.shippingAddress) && (
+                  <div className="grid gap-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="border rounded p-2">
+                        <p className="text-sm text-gray-500">Name:</p>
+                        <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).name}</p>
+                      </div>
+                      <div className="border rounded p-2">
+                        <p className="text-sm text-gray-500">Contact Number:</p>
+                        <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).phone}</p>
+                      </div>
+                    </div>
+                    
                     <div className="border rounded p-2">
-                      <p className="text-sm text-gray-500">Name:</p>
-                      <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).name}</p>
+                      <p className="text-sm text-gray-500">Address:</p>
+                      <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).address}</p>
                     </div>
-                    <div className="border rounded p-2">
-                      <p className="text-sm text-gray-500">Contact Number:</p>
-                      <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).phone}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="border rounded p-2">
-                    <p className="text-sm text-gray-500">Address:</p>
-                    <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).address}</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="border rounded p-2">
-                      <p className="text-sm text-gray-500">City:</p>
-                      <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).city}</p>
-                    </div>
-                    <div className="border rounded p-2">
-                      <p className="text-sm text-gray-500">Postal Code:</p>
-                      <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).postalCode}</p>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="border rounded p-2">
+                        <p className="text-sm text-gray-500">City:</p>
+                        <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).city}</p>
+                      </div>
+                      <div className="border rounded p-2">
+                        <p className="text-sm text-gray-500">Postal Code:</p>
+                        <p className="text-gray-800">{parseShippingAddress(selectedOrder.shippingAddress).postalCode}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="space-y-4">
-              {selectedCartItems.map((item) => (
-                <div key={item.id} className="flex items-center justify-between py-3 border-b">
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={item.imageUrl}
-                      alt={item.productName}
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                    <div>
-                      <h3 className="font-medium text-gray-800">{item.productName}</h3>
-                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-[#4A2B1B]">
-                      Rp {item.price.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 pt-4 border-t">
-              <div className="flex justify-between items-center mb-4">
-                <span className="font-medium">TOTAL PRICE:</span>
-                <span className="font-bold text-[#4A2B1B]">
-                  Rp {selectedOrder?.totalPrice.toLocaleString()}
-                </span>
+                )}
               </div>
-              <button
-                onClick={() => setShowPopup(false)}
-                className="w-full py-3 bg-[#4A2B1B] text-[#F2D9B1] rounded hover:bg-[#F2D9B1] hover:text-[#4A2B1B] transition-colors text-center"
-              >
-                Close
-              </button>
+              
+              <div className="space-y-4">
+                {selectedCartItems.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between py-3 border-b">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.productName}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                      <div>
+                        <h3 className="font-medium text-gray-800">{item.productName}</h3>
+                        <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium text-[#4A2B1B]">
+                        Rp {item.price.toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 pt-4 border-t">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="font-medium">TOTAL PRICE:</span>
+                  <span className="font-bold text-[#4A2B1B]">
+                    Rp {selectedOrder?.totalPrice.toLocaleString()}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowPopup(false)}
+                  className="w-full py-3 bg-[#4A2B1B] text-[#F2D9B1] rounded hover:bg-[#F2D9B1] hover:text-[#4A2B1B] transition-colors text-center"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -406,3 +625,4 @@ const Order = () => {
 };
 
 export default Order;
+
