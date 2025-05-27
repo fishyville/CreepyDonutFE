@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
+import menuHero from '../assets/MenuHero.png';
 
 function Menu() {
   // Get userId from localStorage
@@ -140,15 +141,20 @@ const addToCart = async (productId) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col pt-16">
+    <div className="min-h-screen flex flex-col">
       <Navbar cartCount={cartCount} />
       <div className="flex-1 bg-[#f9f3e7]">
         {/* Hero Section */}
-        <div className="relative h-[300px] bg-cover bg-center"
-          style={{ backgroundImage: "url('/images/menu-hero.jpg')" }}>
-          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white">
-            <h1 className="text-4xl font-bold mb-2">Creepy Donut</h1>
-            <p className="text-2xl">Food & Drinks</p>
+        <div className="relative h-[300px]">
+          <img
+            src={menuHero}
+            alt="Menu Hero"
+            className="absolute inset-0 w-full h-full object-cover opacity-60"
+            style={{ zIndex: 0 }}
+          />
+          <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white" style={{ zIndex: 1 }}>
+            <h1 className="text-4xl text-[#E3C295] font-bold mb-2">Creepy Donut</h1>
+            <p className="text-5xl">--- Food & Drinks ---</p>
           </div>
         </div>
 
@@ -166,29 +172,33 @@ const addToCart = async (productId) => {
           </div>
 
           <div className="flex justify-center gap-8 mb-8">
-            <button
-              onClick={() => setActiveCategory('all')}
-              className={`px-12 py-2.5 rounded-full font-['Jua'] text-[25px] ${
-                activeCategory === 'all'
-                  ? 'bg-transparent text-[#4a2b1b] border-2 border-[#4a2b1b]'
-                  : 'text-[#4a2b1b]'
-              }`}
-            >
-              All
-            </button>
-            {['donut', 'drink', 'merch'].map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={`px-12 py-2.5 rounded-full font-['Jua'] text-[25px] capitalize ${
-                  activeCategory === category
-                    ? 'bg-transparent text-[#4a2b1b] border-2 border-[#4a2b1b]'
-                    : 'text-[#4a2b1b]'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
+            <div className="overflow-x-auto mb-8 px-4 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div className="flex gap-4 md:gap-8 justify-start md:justify-center flex-nowrap w-max md:w-full">
+                <button
+                  onClick={() => setActiveCategory('all')}
+                  className={`px-8 py-2.5 rounded-full font-['Jua'] text-[20px] md:text-[25px] whitespace-nowrap ${
+                    activeCategory === 'all'
+                      ? 'bg-transparent text-[#4a2b1b] border-2 border-[#4a2b1b]'
+                      : 'text-[#4a2b1b]'
+                  }`}
+                >
+                  All
+                </button>
+                {['donut', 'drink', 'merch'].map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setActiveCategory(category)}
+                    className={`px-8 py-2.5 rounded-full font-['Jua'] text-[20px] md:text-[25px] capitalize whitespace-nowrap ${
+                      activeCategory === category
+                        ? 'bg-transparent text-[#4a2b1b] border-2 border-[#4a2b1b]'
+                        : 'text-[#4a2b1b]'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Menu Grid */}
