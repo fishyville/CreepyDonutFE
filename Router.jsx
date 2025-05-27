@@ -8,26 +8,28 @@ import Fundraising from './src/pages/Fundraising';
 import Register from './src/pages/Register';
 import ResetPassword from './src/pages/ResetPassword';
 import Order from './src/pages/Orders';
-import Account from './src/pages/Account'; // Add this import
-import History from './src/pages/History'; // Add this import
+import Account from './src/pages/Account';
+import History from './src/pages/History';
 import AboutUs from './src/pages/About';
 
 const AppRouter = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/home" element={<Home />} />
-      <Route path="/menu" element={<Menu />} />
-      <Route path="/cart" element={<Cart />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/fundraising" element={<Fundraising />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/reset" element={<ResetPassword />} />
-      <Route path="/orders" element={<Order />} />
-      <Route path="/account" element={<Account />} />
-      <Route path="/history" element={<History />} />
-      <Route path="/about" element={<AboutUs />} />
-    </Routes>
+    <div className="overflow-x-hidden max-w-screen">
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/menu" element={<Menu />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/fundraising" element={<Fundraising />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/reset" element={<ResetPassword />} />
+        <Route path="/orders" element={<Order />} />
+        <Route path="/account" element={<Account />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/about" element={<AboutUs />} />
+      </Routes>
+    </div>
   );
 };
 

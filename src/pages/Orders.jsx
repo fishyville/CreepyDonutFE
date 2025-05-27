@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ShoppingBag, User, Lock, History, LogOut } from 'lucide-react';
 import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
+import Profile from '../assets/profile.jpeg';
 
 const generateOrderNumber = () => {
   const prefix = 'CD'; // CD for Creepy Donut
@@ -183,8 +184,12 @@ const Order = () => {
         <div className="w-64 bg-[#e6d5c5]">
           {/* Profile Section */}
           <div className="p-6 text-center border-b border-[#6d4c2b]">
-            <div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-3 bg-[#6d4c2b]">
-              <User className="w-full h-full p-4 text-white" />
+            <div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-3 border-4 border-[#4a2b1b]">
+              <img
+                src={Profile}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
             </div>
             <p className="font-bold text-[#4a2b1b] text-2xl capitalize">{userName}</p>
           </div>

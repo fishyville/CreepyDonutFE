@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+html, body {
+  overflow-x: hidden;
+}
+
+.custom-slick-dots .slick-active div {
+  background-color: #FEAEAE !important;
+  opacity: 1 !important;
+  box-shadow: 0 0 10px #FEAEAE;
+}
