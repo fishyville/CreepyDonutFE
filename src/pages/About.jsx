@@ -58,20 +58,20 @@ const AboutUs = () => {
               <div className="w-2/3 bg-[#E2BE8C] p-12 text-right relative h-[400px] flex items-center">
                 {/* Text Content with Smaller Text */}
                 {/* Our Story Text Content */}
-<div
-  className="max-w-3xl ml-auto space-y-4 text-[#4A2B1B] text-sm sm:text-base md:text-2xl w-full pr-2 relative z-20"
-  style={{ fontFamily: '"Times New Roman", Times, serif' }}
->
-  <p>
-    CreepyDonut was born from a simple but twisted idea... what if donuts could be both terrifying and tempting? A horror enthusiast with a passion for pastry, began experimenting in a small kitchen, determined to create treats that would thrill the taste buds while sending shivers down spines.
-  </p>
-  <p>
-    Donuts glazed like ghostly apparitions, sprinkled with edible "blood," and filled with surprises by blending high-quality ingredients with creativity, we developed a cult following almost overnight.
-  </p>
-  <p>
-    CreepyDonut stands as proof that even the sweetest things can have a dark side. We continue to push boundaries, one spine-tingling treat at a time, because the world deserves donuts that are as fun as they are frightening.
-  </p>
-</div>
+                <div
+                  className="max-w-3xl ml-auto space-y-4 text-[#4A2B1B] text-sm sm:text-base md:text-2xl w-full pr-2 relative z-20"
+                  style={{ fontFamily: '"Times New Roman", Times, serif' }}
+                >
+                  <p>
+                    CreepyDonut was born from a simple but twisted idea... what if donuts could be both terrifying and tempting? A horror enthusiast with a passion for pastry, began experimenting in a small kitchen, determined to create treats that would thrill the taste buds while sending shivers down spines.
+                  </p>
+                  <p>
+                    Donuts glazed like ghostly apparitions, sprinkled with edible "blood," and filled with surprises by blending high-quality ingredients with creativity, we developed a cult following almost overnight.
+                  </p>
+                  <p>
+                    CreepyDonut stands as proof that even the sweetest things can have a dark side. We continue to push boundaries, one spine-tingling treat at a time, because the world deserves donuts that are as fun as they are frightening.
+                  </p>
+                </div>
               </div>
             </div>
 

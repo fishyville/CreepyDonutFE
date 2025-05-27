@@ -38,6 +38,10 @@ const Order = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCartItems, setSelectedCartItems] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null); // New state for selected order
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [iframeUrl, setIframeUrl] = useState(null);
+  const [userEmail, setUserEmail] = useState('');
+  const [userPhone, setUserPhone] = useState('');
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -63,7 +67,9 @@ const Order = () => {
 
         if (userResponse.ok) {
           const userData = await userResponse.json();
-          setUserName(userData.username); // Set the username from API response
+          setUserName(userData.username);
+          setUserEmail(userData.email);
+          setUserPhone(userData.phoneNumber); // <-- use phoneNumber, not phone
         }
 
         // Then fetch orders
@@ -165,6 +171,56 @@ const Order = () => {
     }
   };
 
+  const handlePayNow = async () => {
+    try {
+      if (!selectedOrder) return;
+      // Get user info for payment
+      const nameParts = userName.split(' ');
+      const firstName = nameParts[0] || '';
+      // If lastName is empty, use firstName
+      const lastName = (nameParts.slice(1).join(' ') || firstName);
+      const email = userEmail || '';
+      // Always use phone from user data
+      const phone = userPhone || '';
+
+      // Request snap token
+      const snapResponse = await fetch('https://localhost:7002/payment/get-snap-token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          orderId: selectedOrder.orderId,
+          grossAmount: parseFloat(selectedOrder.totalPrice),
+          firstName,
+          lastName,
+          email,
+          phone
+        })
+      });
+
+      console.log({
+        orderId: selectedOrder.orderId,
+        grossAmount: parseFloat(selectedOrder.totalPrice),
+        firstName,
+        lastName,
+        email,
+        phone
+      });
+
+      if (!snapResponse.ok) {
+        throw new Error('Failed to generate payment QR code');
+      }
+
+      const snapData = await snapResponse.json();
+      setIframeUrl(`https://app.sandbox.midtrans.com/snap/v4/redirection/${snapData.token}`);
+      setShowQRCode(true);
+    } catch (error) {
+      alert('Failed to start payment: ' + error.message);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -260,7 +316,7 @@ const Order = () => {
 
           <div className="space-y-4">
             {orders.map((order) => (
-              <div key={order.id} className="bg-white rounded-lg shadow-md p-6">
+              <div key={order.orderId} className="bg-white rounded-lg shadow-md p-6">
                 <div className="grid gap-2">
                   <div className="mb-2">
                     <span className="text-gray-600">Order Status: </span>
@@ -391,12 +447,51 @@ const Order = () => {
                   Rp {selectedOrder?.totalPrice.toLocaleString()}
                 </span>
               </div>
-              <button
-                onClick={() => setShowPopup(false)}
-                className="w-full py-3 bg-[#4A2B1B] text-[#F2D9B1] rounded hover:bg-[#F2D9B1] hover:text-[#4A2B1B] transition-colors text-center"
+              <div className="flex gap-4">
+                {selectedOrder?.status?.toLowerCase() === 'unpaid' && (
+                  <button
+                    onClick={handlePayNow}
+                    className="flex-1 py-3 bg-[#4A2B1B] text-[#F2D9B1] rounded hover:bg-[#F2D9B1] hover:text-[#4A2B1B] transition-colors text-center"
+                  >
+                    Pay Now
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowPopup(false)}
+                  className="flex-1 py-3 bg-[#4A2B1B] text-[#F2D9B1] rounded hover:bg-[#F2D9B1] hover:text-[#4A2B1B] transition-colors text-center"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showQRCode && iframeUrl && (
+        <div className="fixed inset-0 backdrop-blur-[10px] flex items-center justify-center z-50">
+          <div className="bg-white/100 rounded-2xl p-6 w-[90%] max-w-2xl mx-4 shadow-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold">Payment</h3>
+              <button 
+                onClick={() => {
+                  setShowQRCode(false);
+                  setShowPopup(false);
+                  window.location.reload(); 
+                }}
+                className="text-gray-500 hover:text-gray-700"
               >
-                Close
+                ✕
               </button>
+            </div>
+            <div className="relative" style={{ height: '600px' }}>
+              <iframe
+                src={iframeUrl}
+                className="w-full h-full rounded-xl"
+                frameBorder="0"
+                sandbox="allow-scripts allow-same-origin allow-forms"
+                allow="payment"
+              />
             </div>
           </div>
         </div>
