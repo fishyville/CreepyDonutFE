@@ -54,9 +54,11 @@ const AboutUs = () => {
                   </h2>
                 </div>
               </div>
+
               <div className="w-2/3 bg-[#E2BE8C] p-6 sm:p-8 md:p-12 text-right relative h-[400px] flex items-center overflow-hidden">
                 <div
                   className="max-w-full ml-auto space-y-4 text-[#4A2B1B] text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl w-full pr-2 relative z-20 overflow-y-auto max-h-[350px]"
+
                   style={{ fontFamily: '"Times New Roman", Times, serif' }}
                 >
                   <p>

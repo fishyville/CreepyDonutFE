@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { MessageCircle } from 'lucide-react';  // Add this import
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([
@@ -6,6 +7,7 @@ const ChatBot = () => {
   ]);
   const [input, setInput] = useState('');
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -20,6 +22,8 @@ const ChatBot = () => {
     const userMsg = { from: 'user', text: input };
     setMessages((msgs) => [...msgs, userMsg]);
     setInput('');
+    setIsLoading(true); // Start loading
+
     try {
       const response = await fetch('https://localhost:7002/api/Chat', {
         method: 'POST',
@@ -30,6 +34,8 @@ const ChatBot = () => {
       setMessages((msgs) => [...msgs, { from: 'bot', text: data.reply }]);
     } catch {
       setMessages((msgs) => [...msgs, { from: 'bot', text: "Sorry, something went wrong." }]);
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -38,11 +44,11 @@ const ChatBot = () => {
       {/* Floating Button */}
       {!open && (
         <button
-          className="fixed bottom-6 right-6 bg-[#6d4c2b] text-white rounded-full w-16 h-16 shadow-lg flex items-center justify-center text-3xl z-50"
+          className="fixed bottom-6 right-6 bg-[#6d4c2b] text-white rounded-full w-16 h-16 shadow-lg flex items-center justify-center z-50"
           onClick={() => setOpen(true)}
           aria-label="Open chat"
         >
-          💬
+          <MessageCircle size={28} />
         </button>
       )}
 
@@ -64,7 +70,15 @@ const ChatBot = () => {
             </button>
           </div>
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 bg-amber-50" style={{ minHeight: 200, maxHeight: 320 }}>
+          <div 
+            className="flex-1 overflow-y-auto px-4 py-3 space-y-2 bg-amber-50 scrollbar-hide" 
+            style={{ 
+              minHeight: 200, 
+              maxHeight: 320,
+              scrollbarWidth: 'none',  // Firefox
+              msOverflowStyle: 'none'  // IE/Edge
+            }}
+          >
             {messages.map((msg, i) => (
               <div
                 key={i}
@@ -81,16 +95,33 @@ const ChatBot = () => {
                 </div>
               </div>
             ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-[#e6d5c5] px-3 py-2 rounded-lg">
+                  <div className="flex space-x-2">
+                    <div className="w-2 h-2 bg-[#4a2b1b] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-[#4a2b1b] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-[#4a2b1b] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
           {/* Input */}
           <form onSubmit={handleSend} className="flex border-t border-amber-200">
-            <input
-              className="flex-1 px-3 py-2 rounded-bl-xl focus:outline-none"
-              type="text"
+            <textarea
+              className="flex-1 px-3 py-2 rounded-bl-xl focus:outline-none resize-none"
               placeholder="Type your message..."
               value={input}
-              onChange={e => setInput(e.target.value)}
+              onChange={e => {
+                setInput(e.target.value);
+                // Auto-resize
+                e.target.style.height = 'auto';
+                e.target.style.height = e.target.scrollHeight + 'px';
+              }}
+              rows={1}
+              style={{ minHeight: 40, maxHeight: 120, overflowY: 'auto' }}
               autoFocus
             />
             <button
