@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-// Import the same background images as Login
 import LoginBG from '../assets/LoginBG.png';
 import LoginBG2 from '../assets/LoginBG2.png';
 import LoginBG3 from '../assets/LoginBG3.png';
@@ -69,13 +68,12 @@ function ResetPassword() {
   };
 
   const handleCancel = () => {
-    // Add your cancel logic here (navigate back to login)
     console.log('Cancel reset password');
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background Image Slideshow */}
+      
       {backgroundImages.map((image, index) => (
         <div
           key={index}
@@ -88,23 +86,23 @@ function ResetPassword() {
         />
       ))}
 
-      {/* Overlay */}
+      
       <div className="absolute inset-0 bg-black/30 z-[1]" />
 
-      {/* Update z-index for decorative elements */}
+      
       <div className="absolute top-20 left-20 w-32 h-32 rounded-full bg-white/10 backdrop-blur-sm z-[2]"></div>
       <div className="absolute bottom-32 right-32 w-24 h-24 rounded-full bg-white/15 backdrop-blur-sm z-[2]"></div>
       <div className="absolute top-1/3 right-20 w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm z-[2]"></div>
       <div className="absolute bottom-20 left-1/4 w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm z-[2]"></div>
 
-      {/* Reset Password Form Container - Update z-index */}
+      
       <div className="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 z-[3]">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Reset Password</h1>
         </div>
 
         <div className="space-y-6">
-          {/* Email Input */}
+      
           <div>
             <div className="block text-sm font-medium text-gray-700 mb-2">
               Email
@@ -118,7 +116,7 @@ function ResetPassword() {
             />
           </div>
 
-          {/* New Password Input */}
+         
           <div>
             <div className="block text-sm font-medium text-gray-700 mb-2">
               New Password
@@ -141,7 +139,7 @@ function ResetPassword() {
             </div>
           </div>
 
-          {/* Confirm Password Input */}
+          
           <div>
             <div className="block text-sm font-medium text-gray-700 mb-2">
               Confirm Password
@@ -164,7 +162,7 @@ function ResetPassword() {
             </div>
           </div>
 
-          {/* Action Buttons */}
+          
           <div className="flex gap-4 pt-4">
             <button
               onClick={handleContinue}

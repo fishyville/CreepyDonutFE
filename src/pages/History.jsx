@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { User, ShoppingBag, Lock, History, LogOut } from 'lucide-react';
 import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
+import Profile from '../assets/profile.jpeg';
+import ChatBot from '../component/Chatbot';
 
-// Fungsi parsing shipping address (copy dari Orders.jsx jika perlu)
+
 const parseShippingAddress = (addressString) => {
   try {
     const [name, address, cityPostal, phoneInfo] = addressString.split(', ');
@@ -18,14 +20,13 @@ const parseShippingAddress = (addressString) => {
 
 const HistoryPage = () => {
   const navigate = useNavigate();
-  const userId = localStorage.getItem('userId'); // Ambil di luar useEffect
+  const userId = localStorage.getItem('userId'); 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCartItems, setSelectedCartItems] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [products, setProducts] = useState([]);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -37,7 +38,7 @@ const HistoryPage = () => {
         }
         setLoading(true);
 
-        // Ambil user data
+        
         const userResponse = await fetch(`https://localhost:7002/api/Users/${userId}`, {
           method: 'GET',
           headers: {
@@ -50,7 +51,7 @@ const HistoryPage = () => {
           setUserName(userData.username);
         }
 
-        // Ambil orders yang sudah selesai
+        
         const response = await fetch(`https://localhost:7002/api/Orders/user/${userId}`, {
           method: 'GET',
           headers: {
@@ -73,33 +74,11 @@ const HistoryPage = () => {
       }
     };
     fetchOrders();
-  }, []); // Dependency array kosong, hanya jalan sekali saat mount
-
-  // Fetch products sekali saja
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch('https://localhost:7002/api/products', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setProducts(data);
-        }
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      }
-    };
-    fetchProducts();
-  }, []);
+  }, []); 
 
   const handleViewDetails = async (order) => {
     try {
-      // Ambil cart items dari order.cartId
+      
       const response = await fetch(`https://localhost:7002/api/cart-items/${order.cartId}`, {
         method: 'GET',
         headers: {
@@ -117,17 +96,19 @@ const HistoryPage = () => {
     }
   };
 
-  const getProductImageUrl = () => '/no-image.png';
-
   return (
     <div className="flex flex-col min-h-screen pt-16">
       <Navbar />
       <div className="flex flex-1">
-        {/* Sidebar */}
+        
         <div className="w-64 bg-[#e6d5c5]">
           <div className="p-6 text-center border-b border-[#6d4c2b]">
             <div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-3 bg-[#6d4c2b]">
-              <User className="w-full h-full p-4 text-white" />
+               <img
+                  src={Profile}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                  />
             </div>
             <p className="font-bold text-[#4a2b1b] text-2xl capitalize">{userName}</p>
           </div>
@@ -151,7 +132,7 @@ const HistoryPage = () => {
             </button>
           </div>
         </div>
-        {/* Main Content */}
+        
         <div className="flex-1 bg-[#f9f5f0] p-8 overflow-y-auto">
           <div className="mb-6 bg-[#e6d5c5] p-4 rounded-lg">
             <h1 className="text-2xl font-bold text-[#4a2b1b] flex items-center">
@@ -209,7 +190,7 @@ const HistoryPage = () => {
       </div>
       <Footer />
 
-      {/* Popup Order Summary */}
+      
       {showPopup && selectedOrder && (
         <div className="fixed inset-0 backdrop-blur-[10px] bg-black/40 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full relative">
@@ -222,9 +203,17 @@ const HistoryPage = () => {
                 ✕
               </button>
             </div>
-            {/* Konten scrollable */}
-            <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-              {/* Shipping Address Section */}
+            
+            <div
+              style={{ 
+                maxHeight: '60vh', 
+                overflowY: 'auto',
+                msOverflowStyle: 'none', 
+                scrollbarWidth: 'none'   
+              }}
+              className="scrollbar-hide" 
+            >
+              
               <div className="mb-6">
                 <h3 className="font-medium text-gray-800 mb-4">Shipping Address</h3>
                 {selectedOrder && parseShippingAddress(selectedOrder.shippingAddress) && (
@@ -259,18 +248,12 @@ const HistoryPage = () => {
               <div className="space-y-4">
                 {selectedCartItems.map((item, idx) => (
                   <div
-                    key={
-                      item.cartItemId && item.cartItemId !== 0
-                        ? `cartitem-${item.cartItemId}`
-                        : item.id && item.id !== 0
-                        ? `cartitem-${item.id}`
-                        : `cartitem-fallback-${idx}`
-                    }
+                    key={`cartitem-${idx}`}
                     className="flex items-center justify-between py-3 border-b"
                   >
                     <div className="flex items-center gap-3">
                       <img
-                        src={getProductImageUrl()}
+                        src={item.imageUrl}
                         alt={item.productName}
                         className="w-12 h-12 object-cover rounded"
                       />
@@ -305,6 +288,7 @@ const HistoryPage = () => {
           </div>
         </div>
       )}
+      <ChatBot />
     </div>
   );
 };

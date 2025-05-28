@@ -9,3 +9,12 @@ html, body {
   opacity: 1 !important;
   box-shadow: 0 0 10px #FEAEAE;
 }
+
+.scroll-invisible {
+  scrollbar-width: none; 
+  -ms-overflow-style: none; 
+}
+
+.scroll-invisible::-webkit-scrollbar {
+  display: none;
+}

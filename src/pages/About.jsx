@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
+import ChatBot from '../component/Chatbot';
 
 const AboutUs = () => {
   return (
@@ -8,7 +9,7 @@ const AboutUs = () => {
       <Navbar />
       
       <main className="flex-grow">
-        {/* Hero Section dan itu gambar utk heronya */}
+        
         <div className="relative h-[600px] overflow-hidden">
           <img 
             src="https://files.catbox.moe/l9p7us.png" 
@@ -28,7 +29,7 @@ const AboutUs = () => {
           </div>
         </div>
 
-        {/* Logo creepy donut atas*/}
+   
         <div className="relative">
           <div className="relative h-79 w-74 translate-y-18 left-295">
             <img
@@ -39,9 +40,9 @@ const AboutUs = () => {
           </div>
         </div>
 
-        {/* Content Section */}
+     
         <div className="bg-[#FDF6E9]">
-          {/* Our Story Section */}
+          
           <div className="flex flex-wrap">
             <div className="flex w-full">
               <div className="w-1/3 bg-[#AA7841] p-8 flex justify-end items-center h-[400px]">
@@ -74,7 +75,7 @@ const AboutUs = () => {
               </div>
             </div>
 
-            {/* Bottom Row atas */}
+          
             <div className="flex w-full">
               <div className="w-1/2 h-[300px] relative">
                 <img 
@@ -91,7 +92,7 @@ const AboutUs = () => {
             </div>
           </div>
 
-          {/* divider sprinkler pink */}
+          
           <div className="h-[160px] bg-[#FEAEAE] relative overflow-hidden">
             <img 
               src="https://files.catbox.moe/fm4vp3.png" 
@@ -100,7 +101,7 @@ const AboutUs = () => {
             />
           </div>
 
-          {/* Our Goal Section */}
+       
           <div className="flex flex-col">
             <div className="flex h-[400px]">
               <div className="w-1/3 bg-[#AA7841] p-8 flex justify-end items-center">
@@ -118,7 +119,7 @@ const AboutUs = () => {
               </div>
             </div>
 
-            {/* Logo creepy donut bawah*/}
+            
             <div className="relative z-10 right-150">
               <div className="w-68 h-58 overflow-visible mx-auto -translate-y-12">
                 <img 
@@ -131,7 +132,7 @@ const AboutUs = () => {
           </div>
         </div>
       </main>
-
+      <ChatBot />
       <Footer />
     </div>
   );

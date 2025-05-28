@@ -11,7 +11,7 @@ export default function Footer() {
   ];
 
   const helpLinks = [
-    { label: "FAQ", href: "#" },
+    { label: "FAQ", href: "/about" },
     { label: "Our Service", href: "/" },
     { label: "About Us", href: "/about" },
     { label: "Order Status", href: "/orders" },
@@ -19,7 +19,7 @@ export default function Footer() {
   const storeLinks = [
     { label: "Store Events", href: "/" },
     { label: "Store Hours", href: "/" },
-    { label: "Creepy Store Supports", href: "#" }, // kalau belum ada halaman
+    { label: "Creepy Store Supports", href: "/about" }, 
     { label: "Seasonal Specials", href: "/" },
   ];
 
@@ -35,7 +35,7 @@ export default function Footer() {
 
   return (
     <div className="w-full bg-[#f2d9b1] overflow-hidden">
-      {/* Diagonal Stripe Bar */}
+    
       <div
         className="w-full h-3"
         style={{
@@ -43,18 +43,18 @@ export default function Footer() {
             'repeating-linear-gradient(135deg, #4a2b1b 0 12px, #eb7c7b 12px 24px)'
         }}
       ></div>
-      {/* Main Footer Content */}
+
       <div className="px-12 py-16">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           
-          {/* Brand Section */}
+       
           <div className="md:col-span-1">
             <h2 className="text-2xl font-bold text-[#4a2b1b] mb-3">CreepyDonut</h2>
             <div className="w-16 h-1 bg-[#4a2b1b] mb-4"></div>
             <p className="text-sm text-black">The donut that stares back.</p>
           </div>
 
-          {/* Get Help Section */}
+        
           <div className="md:col-span-1">
             <h3 className="text-2xl font-bold text-[#4a2b1b] mb-3">Get Help</h3>
             <div className="w-16 h-1 bg-[#4a2b1b] mb-4"></div>
@@ -73,7 +73,7 @@ export default function Footer() {
 
           </div>
 
-          {/* Creepy Store Section */}
+          
           <div className="md:col-span-1">
             <h3 className="text-2xl font-bold text-[#4a2b1b] mb-3">Creepy Store</h3>
             <div className="w-16 h-1 bg-[#4a2b1b] mb-4"></div>
@@ -91,7 +91,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact Us Section */}
+       
           <div className="md:col-span-1">
             <h3 className="text-2xl font-bold text-[#4a2b1b] mb-3">Contact Us</h3>
             <div className="w-16 h-1 bg-[#4a2b1b] mb-4"></div>
@@ -116,7 +116,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Follow Us Section */}
+ 
           <div className="md:col-span-1">
             <h3 className="text-2xl font-bold text-[#4a2b1b] mb-3">Follow Us</h3>
             <div className="w-16 h-1 bg-[#4a2b1b] mb-4"></div>
@@ -136,7 +136,7 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Footer Banner */}
+  
       <div className="bg-[#4a2b1b] px-12 py-6">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="text-xl font-bold text-[#f2d9b1] mb-4 md:mb-0">

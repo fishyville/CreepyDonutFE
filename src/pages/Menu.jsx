@@ -3,12 +3,14 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
 import menuHero from '../assets/MenuHero.png';
+import ChatBot from '../component/Chatbot';
+import { Search } from 'lucide-react';
 
 function Menu() {
-  // Get userId from localStorage
+  
   const userId = localStorage.getItem('userId');
   console.log(userId);
-  // Now you can use userId in this component
+  
 
   const [menuData, setMenuData] = useState({
     donut: [],
@@ -23,6 +25,44 @@ function Menu() {
   const navigate = useNavigate();
   const location = useLocation();
   const searchQuery = new URLSearchParams(location.search).get('search')?.toLowerCase();
+  const [searchResults, setSearchResults] = useState(null);
+
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (searchQuery) {
+        try {
+          const response = await fetch(`https://localhost:7002/api/products/search/${searchQuery}`);
+          if (!response.ok) throw new Error('Search failed');
+          const data = await response.json();
+          
+          
+          const results = data.reduce((acc, product) => {
+            const categoryMap = { 1: 'donut', 2: 'drink', 3: 'merch' };
+            const category = categoryMap[product.categoryId];
+            if (!acc[category]) acc[category] = [];
+            acc[category].push({
+              id: product.productId,
+              name: product.name,
+              price: product.price,
+              image: product.imageUrl,
+              description: product.description,
+              quantity: product.quantity
+            });
+            return acc;
+          }, {});
+          
+          setSearchResults(results);
+        } catch (error) {
+          console.error('Search error:', error);
+          setSearchResults(null);
+        }
+      } else {
+        setSearchResults(null);
+      }
+    };
+
+  fetchSearchResults();
+}, [searchQuery]);
 
   const fetchCartCount = async () => {
     try {
@@ -71,26 +111,16 @@ function Menu() {
   }, []);
 
   const getFilteredItems = () => {
-    let items = [];
-    
-    if (activeCategory === 'all') {
-      items = Object.values(menuData).flat();
-    } else {
-      items = menuData[activeCategory] || [];
-    }
+  const sourceData = searchResults || menuData;
+  
+  if (activeCategory === 'all') {
+    return Object.values(sourceData).flat();
+  }
+  
+  return sourceData[activeCategory] || [];
+};
 
-    // Filter items based on search query
-    if (searchQuery) {
-      items = items.filter(item => 
-        item.name.toLowerCase().includes(searchQuery) || 
-        item.description.toLowerCase().includes(searchQuery)
-      );
-    }
-
-    return items;
-  };
-
-  // Update addToCart function to include userId
+  
 const addToCart = async (productId) => {
   if (!userId) {
     setShowLoginPopup(true);
@@ -144,7 +174,7 @@ const addToCart = async (productId) => {
     <div className="min-h-screen flex flex-col">
       <Navbar cartCount={cartCount} />
       <div className="flex-1 bg-[#f9f3e7]">
-        {/* Hero Section */}
+       
         <div className="relative h-[300px]">
           <img
             src={menuHero}
@@ -158,7 +188,7 @@ const addToCart = async (productId) => {
           </div>
         </div>
 
-        {/* Menu Navigation */}
+       
         <div className="max-w-6xl mx-auto py-8">
           <div className="flex flex-col items-center mb-8">
             <h2 className="font-['Jua'] font-bold text-[55px] text-[#4a2b1b] mb-4">
@@ -201,7 +231,7 @@ const addToCart = async (productId) => {
             </div>
           </div>
 
-          {/* Menu Grid */}
+          
           <div className="w-full max-w-6xl mx-auto">
             {activeCategory !== 'all' && (
               <div className="mb-8">
@@ -214,83 +244,105 @@ const addToCart = async (productId) => {
 
             {activeCategory === 'all' ? (
               <>
-                {Object.entries(menuData).map(([category, items]) => (
-                  <div key={category} className="mb-16">
-                    <div className="mb-8">
-                      <h3 className="font-['Jua'] text-[45px] text-[#4a2b1b] capitalize">
-                        {category}
-                      </h3>
-                      <div className="w-[200px] h-[2px] bg-[#4a2b1b] mt-2" />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
-                      {items.map((item) => (
-                        <div
-                          key={item.id}
-                          className="w-[206px] h-[223px] relative group flex flex-col"
-                        >
-                          <div className="flex flex-col items-center h-full">
-                            <img
-                              src={item.image}
-                              alt={item.name}
-                              className="w-[133px] h-[126px] object-cover mt-2"
-                            />
-                            <h3 className="text-xl font-semibold text-[#4a2b1b] mt-3">{item.name}</h3>
-                            <div className="flex items-center mt-2">
-                              <span className="text-xs text-[#4a2b1b]">Price:</span>
-                              <span className="font-bold text-lg text-[#4a2b1b] ml-1">Rp {item.price.toLocaleString()}</span>
-                            </div>
-                          </div>
-                          <div className="absolute inset-0 bg-black flex flex-col p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <p className="text-[#e3c295] text-sm">
-                              {item.description}
-                            </p>
-                            <button
-                              className="bg-[#926d4b] text-[#e3c295] px-4 py-1.5 rounded-[20px] hover:bg-opacity-90 transition-colors w-fit mt-auto"
-                              onClick={() => addToCart(item.id)}
-                              disabled={isAddingToCart}
-                            >
-                              {isAddingToCart ? 'Adding...' : 'add to cart+'}
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                {Object.entries(searchResults || menuData).length === 0 ? (
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="mb-4 text-[#926d4b]">
+          <Search size={64} strokeWidth={1.5} />
+        </div>
+        <h3 className="text-2xl font-bold text-[#4a2b1b] mb-2">No Products Found</h3>
+        <p className="text-[#926d4b]">We couldn't find any products matching your search.</p>
+      </div>
+    ) : (
+      Object.entries(searchResults || menuData).map(([category, items]) => (
+        <div key={category} className="mb-16">
+          <div className="mb-8">
+            <h3 className="font-['Jua'] text-[45px] text-[#4a2b1b] capitalize">
+              {category}
+            </h3>
+            <div className="w-[200px] h-[2px] bg-[#4a2b1b] mt-2" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
+            {items.map((item) => (
+              <div
+                key={item.id}
+                className="w-[206px] h-[223px] relative group flex flex-col"
+              >
+                <div className="flex flex-col items-center h-full">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-[133px] h-[126px] object-cover mt-2"
+                  />
+                  <h3 className="text-xl font-semibold text-[#4a2b1b] mt-3">{item.name}</h3>
+                  <div className="flex items-center mt-2">
+                    <span className="text-xs text-[#4a2b1b]">Price:</span>
+                    <span className="font-bold text-lg text-[#4a2b1b] ml-1">Rp {item.price.toLocaleString()}</span>
                   </div>
-                ))}
+                </div>
+                <div className="absolute inset-0 bg-black flex flex-col p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <p className="text-[#e3c295] text-sm">
+                    {item.description}
+                  </p>
+                  <button
+                    className="bg-[#926d4b] text-[#e3c295] px-4 py-1.5 rounded-[20px] hover:bg-opacity-90 transition-colors w-fit mt-auto"
+                    onClick={() => addToCart(item.id)}
+                    disabled={isAddingToCart}
+                  >
+                    {isAddingToCart ? 'Adding...' : 'add to cart+'}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))
+    )}
               </>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
-                {getFilteredItems().map((item) => (
-                  <div
-                    key={item.id}
-                    className="w-[206px] h-[223px] relative group flex flex-col"
-                  >
-                    <div className="flex flex-col items-center h-full">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-[133px] h-[126px] object-cover mt-2"
-                      />
-                      <h3 className="text-xl font-semibold text-[#4a2b1b] mt-3">{item.name}</h3>
-                      <div className="flex items-center mt-2">
-                        <span className="text-xs text-[#4a2b1b]">Price:</span>
-                        <span className="font-bold text-lg text-[#4a2b1b] ml-1">Rp {item.price.toLocaleString()}</span>
-                      </div>
-                    </div>
-                    <div className="absolute inset-0 bg-black flex flex-col p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <p className="text-[#e3c295] text-sm">
-                        {item.description}
-                      </p>
-                      <button
-                        className="bg-[#926d4b] text-[#e3c295] px-4 py-1.5 rounded-[20px] hover:bg-opacity-90 transition-colors w-fit mt-auto"
-                        onClick={() => addToCart(item.id)}
-                        disabled={isAddingToCart}
-                      >
-                        {isAddingToCart ? 'Adding...' : 'add to cart+'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+              <div>
+                {getFilteredItems().length === 0 ? (
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="mb-4 text-[#926d4b]">
+          <Search size={64} strokeWidth={1.5} />
+        </div>
+        <h3 className="text-2xl font-bold text-[#4a2b1b] mb-2">No Products Found</h3>
+        <p className="text-[#926d4b]">We couldn't find any products in this category.</p>
+      </div>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
+        {getFilteredItems().map((item) => (
+          <div
+            key={item.id}
+            className="w-[206px] h-[223px] relative group flex flex-col"
+          >
+            <div className="flex flex-col items-center h-full">
+              <img
+                src={item.image}
+                alt={item.name}
+                className="w-[133px] h-[126px] object-cover mt-2"
+              />
+              <h3 className="text-xl font-semibold text-[#4a2b1b] mt-3">{item.name}</h3>
+              <div className="flex items-center mt-2">
+                <span className="text-xs text-[#4a2b1b]">Price:</span>
+                <span className="font-bold text-lg text-[#4a2b1b] ml-1">Rp {item.price.toLocaleString()}</span>
+              </div>
+            </div>
+            <div className="absolute inset-0 bg-black flex flex-col p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <p className="text-[#e3c295] text-sm">
+                {item.description}
+              </p>
+              <button
+                className="bg-[#926d4b] text-[#e3c295] px-4 py-1.5 rounded-[20px] hover:bg-opacity-90 transition-colors w-fit mt-auto"
+                onClick={() => addToCart(item.id)}
+                disabled={isAddingToCart}
+              >
+                {isAddingToCart ? 'Adding...' : 'add to cart+'}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
               </div>
             )}
           </div>
@@ -321,6 +373,7 @@ const addToCart = async (productId) => {
         </div>
       </div>
     )}
+    <ChatBot />
       <Footer />
     </div>
   );

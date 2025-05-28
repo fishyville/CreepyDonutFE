@@ -4,13 +4,13 @@ import { ShoppingBag, User, Lock, History, LogOut } from 'lucide-react';
 import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
 import Profile from '../assets/profile.jpeg';
-
-const POLLING_INTERVAL = 10000; // Poll every 10 seconds instead of 5 seconds
+import ChatBot from '../component/Chatbot';
+const POLLING_INTERVAL = 10000; 
 
 const generateOrderNumber = () => {
   const prefix = 'CD'; // CD for Creepy Donut
-  const timestamp = new Date().getTime().toString().slice(-6); // Last 6 digits of timestamp
-  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // 3 random digits
+  const timestamp = new Date().getTime().toString().slice(-6); 
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0'); 
   return `${prefix}${timestamp}${random}`;
 };
 
@@ -33,10 +33,10 @@ const parseShippingAddress = (addressString) => {
   }
 };
 
-// First, update the updateOrderStatus function
+
 const updateOrderStatus = async (orderId, status) => {
   try {
-    console.log('Updating order:', orderId); // Debug log
+    console.log('Updating order:', orderId); 
     
     if (!orderId) {
       throw new Error('Order ID is required');
@@ -60,7 +60,7 @@ const updateOrderStatus = async (orderId, status) => {
       throw new Error('Failed to update order status');
     }
 
-    // Wait for the response to complete
+    
     await response.json();
     return true;
   } catch (error) {
@@ -71,12 +71,12 @@ const updateOrderStatus = async (orderId, status) => {
 
 const Order = () => {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState([]); // Changed to array
+  const [orders, setOrders] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCartItems, setSelectedCartItems] = useState([]);
-  const [selectedOrder, setSelectedOrder] = useState(null); // New state for selected order
+  const [selectedOrder, setSelectedOrder] = useState(null); 
   const [showQRCode, setShowQRCode] = useState(false);
   const [iframeUrl, setIframeUrl] = useState(null);
   const [userEmail, setUserEmail] = useState('');
@@ -95,7 +95,7 @@ const Order = () => {
         setLoading(true);
         console.log('Fetching orders for user:', userId);
 
-        // First, fetch user data to get the username
+        
         const userResponse = await fetch(`https://localhost:7002/api/Users/${userId}`, {
           method: 'GET',
           headers: {
@@ -109,11 +109,11 @@ const Order = () => {
           setUserName(userData.username);
 
           setUserEmail(userData.email);
-          setUserPhone(userData.phoneNumber); // <-- use phoneNumber, not phone
+          setUserPhone(userData.phoneNumber); 
 
         }
 
-        // Then fetch orders
+        
         const response = await fetch(`https://localhost:7002/api/Orders/user/${userId}`, {
           method: 'GET',
           headers: {
@@ -127,7 +127,7 @@ const Order = () => {
         }
 
         const data = await response.json();
-        // Filter out finished orders and add order numbers
+        
         const activeOrders = data
           .filter(order => order.status !== 'Finished')
           .map(order => ({
@@ -147,7 +147,7 @@ const Order = () => {
     fetchOrders();
 }, [navigate]);
 
-  // Add this near your other useEffect hooks
+  
   useEffect(() => {
     const handleBackButton = (e) => {
       e.preventDefault();
@@ -156,37 +156,33 @@ const Order = () => {
 
     window.addEventListener('popstate', handleBackButton);
 
-    // Cleanup listener when component unmounts
+    
     return () => {
       window.removeEventListener('popstate', handleBackButton);
     };
   }, [navigate]);
 
-  // First, update the getStatusColor function
+  
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
       case 'unpaid':
         return 'text-red-600';
       case 'processing':
-        return 'text-blue-500';
+        return 'text-gray-600';
       case 'delivering':
-        return 'text-yellow-500';
-      case 'finished':
-        return 'text-purple-600'; // Add color for finished status
+        return 'text-yellow-500'; 
       case 'arrived':
         return 'text-green-600';
-      default:
-        return 'text-gray-600';
     }
   };
 
-  // Then update the useEffect that handles status changes
+  
   useEffect(() => {
     const updateProcessingOrders = async () => {
       try {
         const userId = localStorage.getItem('userId');
         
-        // Fetch orders first to ensure we have the latest data
+        
         const response = await fetch(`https://localhost:7002/api/Orders/user/${userId}`, {
           method: 'GET',
           headers: {
@@ -201,17 +197,17 @@ const Order = () => {
 
         const allOrders = await response.json();
         
-        // Filter only Processing orders and sort by ID ascending
+        
         const processingOrders = allOrders
-          .filter(order => order.status === 'Processing') // Changed to match exact case
-          .sort((a, b) => parseInt(a.orderId) - parseInt(b.orderId)); // Changed to orderId
+          .filter(order => order.status === 'Processing') 
+          .sort((a, b) => parseInt(a.orderId) - parseInt(b.orderId)); 
 
         console.log('Processing orders found:', processingOrders);
 
         if (processingOrders.length > 0) {
           const lowestIdOrder = processingOrders[0];
           
-          if (!lowestIdOrder.orderId) { // Changed to orderId
+          if (!lowestIdOrder.orderId) { 
             console.error('Invalid order or missing ID:', lowestIdOrder);
             return;
           }
@@ -236,7 +232,7 @@ const Order = () => {
                 throw new Error('Failed to update order status');
               }
 
-              // No need to call setOrders here as the polling will pick up the change
+              
               console.log('Successfully updated order to Delivering:', lowestIdOrder.orderId);
 
             } catch (error) {
@@ -251,11 +247,11 @@ const Order = () => {
       }
     };
 
-    // Call the function
+    
     updateProcessingOrders();
-  }, [orders]); // Added orders as dependency
+  }, [orders]); 
 
-  // Update the useEffect that handles Delivering to Finished status change
+  
   useEffect(() => {
     const updateDeliveringOrders = async () => {
       try {
@@ -284,7 +280,7 @@ const Order = () => {
                 throw new Error('Failed to update order status');
               }
 
-              // No need to manually update orders as polling will handle it
+              
               console.log('Successfully updated order to Finished:', lowestIdOrder.orderId);
 
             } catch (error) {
@@ -299,11 +295,11 @@ const Order = () => {
       }
     };
 
-    // Call the function
+    
     updateDeliveringOrders();
-  }, [orders]); // Added orders as dependency
+  }, [orders]); 
 
-  // Add new useEffect for polling
+  
   useEffect(() => {
     const pollOrders = async () => {
       try {
@@ -323,7 +319,7 @@ const Order = () => {
         }
 
         const data = await response.json();
-        // Filter out finished orders and add order numbers
+        
         const activeOrders = data
           .filter(order => order.status !== 'Finished')
           .map(order => ({
@@ -337,16 +333,15 @@ const Order = () => {
       }
     };
 
-    // Initial poll
+    
     pollOrders();
 
-    // Set up polling interval
+    
     const pollInterval = setInterval(pollOrders, POLLING_INTERVAL);
 
-    // Cleanup
+    
     return () => clearInterval(pollInterval);
-  }, []); // Empty dependency array as we want this to run only once on mount
-
+  }, []); 
   const getStatusDisplay = (status) => {
     switch (status.toLowerCase()) {
       case 'unpaid':
@@ -380,7 +375,7 @@ const Order = () => {
 
       const cartItems = await response.json();
       setSelectedCartItems(cartItems);
-      setSelectedOrder(order); // Store the selected order
+      setSelectedOrder(order); 
       setShowPopup(true);
     } catch (error) {
       console.error('Error fetching cart items:', error);
@@ -391,16 +386,19 @@ const Order = () => {
   const handlePayNow = async () => {
     try {
       if (!selectedOrder) return;
-      // Get user info for payment
+
+      
+      await updateOrderStatus(selectedOrder.orderId, 'Processing');
+      console.log('Order status updated to Processing:', selectedOrder.orderId);
+
+      
       const nameParts = userName.split(' ');
       const firstName = nameParts[0] || '';
-      // If lastName is empty, use firstName
       const lastName = (nameParts.slice(1).join(' ') || firstName);
       const email = userEmail || '';
-      // Always use phone from user data
       const phone = userPhone || '';
 
-      // Request snap token
+      
       const snapResponse = await fetch('https://localhost:7002/payment/get-snap-token', {
         method: 'POST',
         headers: {
@@ -415,15 +413,6 @@ const Order = () => {
           email,
           phone
         })
-      });
-
-      console.log({
-        orderId: selectedOrder.orderId,
-        grossAmount: parseFloat(selectedOrder.totalPrice),
-        firstName,
-        lastName,
-        email,
-        phone
       });
 
       if (!snapResponse.ok) {
@@ -452,11 +441,11 @@ const Order = () => {
     <div className="flex flex-col min-h-screen pt-16">
       <Navbar />
       <div className="flex flex-1">
-        {/* Left Sidebar */}
+       
         <div className="w-64 bg-[#e6d5c5]">
-          {/* Profile Section */}
+         
           <div className="p-6 text-center border-b border-[#6d4c2b]">
-            <div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-3 border-4 border-[#4a2b1b]">
+            <div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-3">
               <img
                 src={Profile}
                 alt="Profile"
@@ -466,7 +455,7 @@ const Order = () => {
             <p className="font-bold text-[#4a2b1b] text-2xl capitalize">{userName}</p>
           </div>
 
-          {/* Navigation Menu */}
+          
           <nav className="p-4 space-y-2">
             <button 
               onClick={() => navigate('/account')} 
@@ -507,7 +496,7 @@ const Order = () => {
             </button>
           </nav>
 
-          {/* Logout Button */}
+          
           <div className="p-4 mt-8">
             <button 
               onClick={() => {
@@ -526,7 +515,7 @@ const Order = () => {
           </div>
         </div>
 
-        {/* Main Content */}
+        
         <div className="flex-1 bg-[#f9f5f0] p-8 overflow-y-auto">
           <div className="mb-6 bg-[#e6d5c5] p-4 rounded-lg">
             <h1 className="text-2xl font-bold text-[#4a2b1b] flex items-center">
@@ -589,6 +578,7 @@ const Order = () => {
         </div>
       </div>
       <Footer />
+        <ChatBot />
 
       {showPopup && (
         <div className="fixed inset-0 backdrop-blur-[10px] bg-black/40 flex items-center justify-center z-50">
@@ -602,12 +592,17 @@ const Order = () => {
                 ✕
               </button>
             </div>
-            {/* Konten scrollable dengan custom scrollbar */}
+            
             <div
-              style={{ maxHeight: '60vh', overflowY: 'auto' }}
-              className="custom-scrollbar"
+              style={{ 
+                maxHeight: '60vh', 
+                overflowY: 'auto',
+                msOverflowStyle: 'none', 
+                scrollbarWidth: 'none'    
+              }}
+              className="scrollbar-hide" 
             >
-              {/* Shipping Address Section */}
+              
               <div className="mb-6">
                 <h3 className="font-medium text-gray-800 mb-4">Shipping Address</h3>
                 {selectedOrder && parseShippingAddress(selectedOrder.shippingAddress) && (
@@ -672,12 +667,6 @@ const Order = () => {
                     Rp {selectedOrder?.totalPrice.toLocaleString()}
                   </span>
                 </div>
-                <button
-                  onClick={() => setShowPopup(false)}
-                  className="w-full py-3 bg-[#4A2B1B] text-[#F2D9B1] rounded hover:bg-[#F2D9B1] hover:text-[#4A2B1B] transition-colors text-center"
-                >
-                  Close
-                </button>
               </div>
 
               <div className="flex gap-4">

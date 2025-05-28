@@ -17,6 +17,7 @@ import piring from '../assets/piring.jpg';
 import tiramisu from '../assets/tiramisu.jpg';
 import bestseller from '../assets/bestseller.jpg';
 import ChatBot from '../component/Chatbot';
+import menuHero from '../assets/MenuHero.png';
 
 
 
@@ -24,13 +25,13 @@ export default function Home() {
   const navigate = useNavigate();
   const [showPopup, setShowPopup] = useState(false);
 
-  // Fungsi untuk handle klik tombol
+  
   const handleOrderClick = () => {
     setShowPopup(true);
     setTimeout(() => {
       setShowPopup(false);
       navigate('/menu');
-    }, 900); // 900ms sesuai animasi
+    }, 900); 
   };
 
   return (
@@ -45,43 +46,40 @@ export default function Home() {
       <div className="min-h-screen" style={{ backgroundColor: '#F2D9B1' }}>
         <Navbar />
 
-        {/* Hero Section - Updated with background image support */}
-        <section
-          className="hero-section py-20 px-8 relative"
-          style={{
-            backgroundColor: '#F2D9B1',
-            backgroundImage: 'url("/img/hero-bg.jpg")', 
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        >
-          {/* Optional overlay for better text readability */}
-          <div className="absolute inset-0 bg-black bg-opacity-20"></div>
-          
-          <div className="max-w-6xl mx-auto text-center relative z-10">
-            <h1 className="text-5xl font-bold mb-4" style={{ color: '#F2D9B1' }}>
-              Dare to Taste the Difference.
-            </h1>
-            <p className="text-xl mb-8" style={{ color: '#F2D9B1' }}>
-              Go try out some creeps now!
-            </p>
-            <button
-              className="px-8 py-3 rounded-full font-semibold transition-colors"
-              style={{ 
-                backgroundColor: '#F2D9B1', 
-                color: '#4A2B1B' 
-              }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#E3C295'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#F2D9B1'}
-              onClick={() => navigate('/menu')}
-            >
-              To the Menu →
-            </button>
-          </div>
-        </section>
+       
+      <section className="relative h-[350px]">
+       
+        <img
+          src={menuHero}
+          alt="Menu Hero"
+          className="absolute inset-0 w-full h-full object-cover opacity-60"
+          style={{ zIndex: 0 }}
+        />
 
-        {/* Carousel Donut - Enhanced background with gradient */}
+        
+        <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-center px-8" style={{ zIndex: 1 }}>
+          <h1 className="text-5xl font-bold mb-4" style={{ color: '#F2D9B1' }}>
+            Dare to Taste the Difference.
+          </h1>
+          <p className="text-xl mb-8" style={{ color: '#F2D9B1' }}>
+            Go try out some creeps now!
+          </p>
+          <button
+            className="px-8 py-3 rounded-full font-semibold transition-colors"
+            style={{
+              backgroundColor: '#F2D9B1',
+              color: '#4A2B1B'
+            }}
+            onMouseEnter={(e) => (e.target.style.backgroundColor = '#E3C295')}
+            onMouseLeave={(e) => (e.target.style.backgroundColor = '#F2D9B1')}
+            onClick={() => navigate('/menu')}
+          >
+            To the Menu →
+          </button>
+        </div>
+      </section>
+
+       
         <section 
           className="py-12 px-8 relative" 
           style={{ 
@@ -90,7 +88,7 @@ export default function Home() {
             animation: 'gradientShift 15s ease infinite'
           }}
         >
-          {/* Add CSS animation for subtle background movement */}
+          
           <style jsx>{`
             @keyframes gradientShift {
               0% { background-position: 0% 50%; }
@@ -99,7 +97,7 @@ export default function Home() {
             }
           `}</style>
           
-          {/* Decorative pattern overlay for texture */}
+          
           <div className="absolute inset-0 opacity-5" style={{
             backgroundImage: `radial-gradient(circle at 20% 50%, #D4A574 2px, transparent 2px),
                               radial-gradient(circle at 80% 50%, #E3C295 1px, transparent 1px),
@@ -111,9 +109,9 @@ export default function Home() {
           <div className="max-w-6xl mx-auto relative z-10">
             <div className="text-center mb-12">
               <h2 className="text-4xl font-bold mb-4" style={{ color: '#4A2B1B' }}>
-                {/* Fixed Images Section - No scrolling needed */}
+                
                 <div className="max-w-6xl mx-auto flex justify-center items-center gap-6 mb-12 flex-wrap">
-                  {/* Image 1 */}
+                  
                   <div 
                     className="w-36 h-36 md:w-48 md:h-48 rounded-xl overflow-hidden shadow-lg bg-white flex items-center justify-center"
                     style={{ transform: 'rotate(-15deg)' }}
@@ -121,7 +119,7 @@ export default function Home() {
                     <img src={pink} alt="gambar" className="object-cover w-full h-full" />
                   </div>
                   
-                  {/* Image 2 */}
+                 
                   <div 
                     className="w-36 h-36 md:w-48 md:h-48 rounded-xl overflow-hidden shadow-lg bg-white flex items-center justify-center"
                     style={{ transform: 'rotate(8deg)' }}
@@ -129,7 +127,7 @@ export default function Home() {
                     <img src={kitty} alt="gambar" className="object-cover w-full h-full" />
                   </div>
 
-                  {/* Image 3 */}
+                  
                   <div 
                     className="w-36 h-36 md:w-48 md:h-48 rounded-xl overflow-hidden shadow-lg bg-white flex items-center justify-center"
                     style={{ transform: 'rotate(-5deg)' }}
@@ -137,7 +135,7 @@ export default function Home() {
                     <img src={meses} alt="gambar" className="object-cover w-full h-full" />
                   </div>
                   
-                  {/* Image 4 */}
+                 
                   <div 
                     className="w-36 h-36 md:w-48 md:h-48 rounded-xl overflow-hidden shadow-lg bg-white flex items-center justify-center"
                     style={{ transform: 'rotate(12deg)' }}
@@ -145,7 +143,7 @@ export default function Home() {
                     <img src={piring} alt="gambar" className="object-cover w-full h-full" />
                   </div>
                   
-                  {/* Image 5 */}
+                  
                   <div 
                     className="w-36 h-36 md:w-48 md:h-48 rounded-xl overflow-hidden shadow-lg bg-white flex items-center justify-center"
                     style={{ transform: 'rotate(-8deg)' }}
@@ -160,7 +158,7 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Unique Selling Point */}
+            
             <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
               <div className="space-y-6">
                 <div className="p-6 rounded-lg shadow-md" style={{ 
@@ -239,12 +237,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Le Chuchoteur & Exciting Offers - UPDATED */}
+        
         <section className="py-0" style={{ backgroundColor: '#F2D9B1' }}>
           <div className="w-full flex flex-col lg:flex-row shadow-2xl min-h-[500px]">
-            {/* Left: Le Chuchoteur with French flag and donut */}
+           
             <div className="relative flex-1 w-full lg:w-1/2 h-[500px] flex flex-col overflow-hidden p-0">
-              {/* French flag as image */}
+              
               <div className="relative w-full h-40 flex-shrink-0">
                 <img
                   src={flags}
@@ -260,7 +258,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Donut image full width below the flag */}
+             
               <div className="w-full flex-1 flex items-start justify-center p-0 m-0" style={{ backgroundColor: '#FEF2DE' }}>
                 <img
                   src={donuts}
@@ -271,7 +269,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right: Exciting Offers with your donut image */}
+            
             <div className="flex-1 w-full lg:w-1/2 h-[500px] flex flex-col justify-between p-8 relative" style={{ background: 'linear-gradient(135deg, #FEF2DE 0%, #F2D9B1 100%)' }}>
               <div className="absolute left-0 top-0 w-full h-full pointer-events-none z-0 opacity-20">
                 <svg viewBox="0 0 400 400" className="w-full h-full" preserveAspectRatio="none">
@@ -286,7 +284,7 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Ganti stack donat dengan gambar Anda */}
+              
               <div className="relative z-10 flex flex-col items-center">
                 <img 
                   src={donat} 
@@ -313,7 +311,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Pick Me Up Edition */}
+        
         <section className="py-16 px-8" style={{ backgroundColor: '#3B2E25' }}>
           <div className="max-w-6xl mx-auto text-center">
             <h3 className="text-3xl font-bold mb-2" style={{ color: '#F2D9B1' }}>Pick Me Up</h3>
@@ -375,7 +373,7 @@ export default function Home() {
               ))}
             </div>
           </div>
-          {/* Popup animasi */}
+          
           {showPopup && (
             <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none">
               <div className="bg-white rounded-2xl shadow-2xl px-10 py-6 text-2xl font-bold text-[#4A2B1B] animate-popup">
@@ -396,7 +394,7 @@ export default function Home() {
           )}
         </section>
 
-        {/* Best Sellers */}
+        
         <section className="py-16 px-8" style={{ backgroundColor: '#F2D9B1' }}>
           <div className="max-w-6xl mx-auto">
             <div className="w-full mb-4" style={{ borderTop: '4px solid #E3C295' }}></div>
@@ -436,7 +434,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Footer */}
+        
         <Footer />
         <ChatBot />
       </div>

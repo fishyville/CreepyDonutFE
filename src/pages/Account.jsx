@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { User, ShoppingBag, Lock, History, LogOut } from 'lucide-react';
 import Navbar from '../component/Navbar';
 import Footer from '../component/Footer';
+import Profile from '../assets/profile.jpeg';
+import ChatBot from '../component/Chatbot';
+import Alert from '../component/Alert';
 
 const Account = () => {
   const navigate = useNavigate();
@@ -13,9 +16,11 @@ const Account = () => {
     phoneNumber: '',
     address: '',
     dateOfBirth: '',
-    username: '' // Add username field
+    username: '' 
   });
   const [loading, setLoading] = useState(true);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -69,33 +74,39 @@ const Account = () => {
       });
 
       if (response.ok) {
-        alert('Profile updated successfully!');
+        setAlertMessage('Profile updated successfully!');
+        setShowAlert(true);
       } else {
         throw new Error('Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      alert('Failed to update profile');
+      setAlertMessage('Failed to update profile');
+      setShowAlert(true);
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen pt-16"> {/* Add pt-16 here */}
+    <div className="flex flex-col min-h-screen pt-16"> 
       <Navbar />
       <div className="flex flex-1">
-        {/* Left Sidebar */}
+       
         <div className="w-64 bg-[#e6d5c5]">
-          {/* Profile Section */}
+          
           <div className="p-6 text-center border-b border-[#6d4c2b]">
             <div className="w-24 h-24 mx-auto rounded-full overflow-hidden mb-3 bg-[#6d4c2b]">
-              <User className="w-full h-full p-4 text-white" />
+              <img
+                src={Profile}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
             </div>
             <p className="font-bold text-[#4a2b1b] text-2xl capitalize">
-              {userData.username || userData.firstName} {/* Show username or firstName as fallback */}
+              {userData.username || userData.firstName} 
             </p>
           </div>
 
-          {/* Navigation Menu */}
+      
           <nav className="p-4 space-y-2">
             <button className="flex items-center w-full p-3 bg-[#6d4c2b] text-white rounded">
               <User className="w-5 h-5 mr-3" />
@@ -142,7 +153,7 @@ const Account = () => {
             </button>
           </nav>
 
-          {/* Logout Button */}
+      
           <div className="p-4 mt-8">
             <button 
               onClick={() => {
@@ -157,8 +168,7 @@ const Account = () => {
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 bg-[#f9f5f0] p-8"> {/* Remove pt-16 from here */}
+        <div className="flex-1 bg-[#f9f5f0] p-8"> 
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-2xl font-bold text-[#4a2b1b] mb-6">Personal Information</h2>
             <p className="text-gray-600 mb-6">
@@ -228,7 +238,7 @@ const Account = () => {
               </div>
             </div>
 
-            {/* Add Save Button */}
+        
             <div className="mt-6 flex justify-end">
               <button
                 onClick={handleSave}
@@ -240,7 +250,14 @@ const Account = () => {
           </div>
         </div>
       </div>
+      <ChatBot />
       <Footer />
+      {showAlert && (
+        <Alert 
+          message={alertMessage} 
+          onClose={() => setShowAlert(false)} 
+        />
+      )}
     </div>
   );
 };

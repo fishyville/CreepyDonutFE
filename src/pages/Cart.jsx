@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../component/Navbar";
 import Footer from "../component/Footer";
 import { useNavigate } from "react-router-dom";
+import Alert from '../component/Alert';
+import ChatBot from '../component/Chatbot';
 
 const Cart = () => {
   // Update the states to match API response structure
@@ -20,28 +22,29 @@ const Cart = () => {
     city: '',
     postalCode: '',
     phone: '',
-    email: '', // Add email field
+    email: '', 
     notes: ''
   });
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [cartId, setCartId] = useState(null); // Add this state
+  const [cartId, setCartId] = useState(null); 
   const [checkoutClicked, setCheckoutClicked] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [snapToken, setSnapToken] = useState(null);
-  const [iframeUrl, setIframeUrl] = useState(null); // Add this state
-  const [paymentStatus, setPaymentStatus] = useState(null); // Add new state for payment status
+  const [iframeUrl, setIframeUrl] = useState(null); 
+  const [paymentStatus, setPaymentStatus] = useState(null); 
+  const [alertMessage, setAlertMessage] = useState('');
   const userId = localStorage.getItem('userId');
 
   const navigate = useNavigate();
 
   const userName = localStorage.getItem('username');
-  const userEmail = localStorage.getItem('userEmail'); // Add this line to get email
+  const userEmail = localStorage.getItem('userEmail'); 
 
-  // Initialize shipping address with user's email
+  
   useEffect(() => {
     setShippingAddress(prev => ({
       ...prev,
-      email: userEmail || '' // Pre-fill email field with user's email from localStorage
+      email: userEmail || '' 
     }));
   }, [userEmail]);
 
@@ -52,22 +55,22 @@ const Cart = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Fetch cart data
+        
         const cartRes = await fetch(`https://localhost:7002/api/cart/${userId}`);
         if (!cartRes.ok) throw new Error('Failed to fetch cart');
         const cartData = await cartRes.json();
         
-        setCartData(cartData); // Store the complete cart data
+        setCartData(cartData); 
         setCartItems(cartData.items || []);
         setCartId(cartData.id);
         
-        // Calculate total price from API data
+       
         const total = (cartData.items || []).reduce((sum, item) => 
           sum + (item.price * item.quantity), 0
         );
         setTotalPrice(total);
 
-        // Fetch recommended products
+        
         const productsRes = await fetch('https://localhost:7002/api/products');
         if (!productsRes.ok) throw new Error('Failed to fetch products');
         const productsData = await productsRes.json();
@@ -84,7 +87,7 @@ const Cart = () => {
     fetchData();
   }, [userId]);
 
-  // Update the updateQuantity function to use the stored cartId
+ 
   const updateQuantity = async (productId, newQty) => {
     try {
       if (!cartId) return;
@@ -106,18 +109,18 @@ const Cart = () => {
         throw new Error('Failed to update quantity');
       }
 
-      // Refresh cart data
+    
       const cartRes = await fetch(`https://localhost:7002/api/cart/${userId}`);
       const cartData = await cartRes.json();
       setCartItems(cartData.items || []);
       
-      // Update total price
+    
       const total = cartData.items.reduce((sum, item) => 
         sum + (item.price * item.quantity), 0
       );
       setTotalPrice(total);
 
-      // Dispatch cartUpdated event to update navbar counter
+    
       window.dispatchEvent(new Event('cartUpdated'));
 
     } catch (error) {
@@ -125,7 +128,7 @@ const Cart = () => {
     }
   };
 
-  // Add handleAddressChange function
+ 
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setShippingAddress(prev => ({
@@ -134,16 +137,15 @@ const Cart = () => {
     }));
   };
 
-  // Update handleCheckout function to validate before showing confirmation
+ 
   const handleCheckout = async () => {
     if (cartItems.length === 0) {
-      alert('Your cart is empty');
+      setAlertMessage('Your cart is empty');
       return;
     }
     
-    // Validate required fields before showing confirmation
     if (!shippingAddress.name || !shippingAddress.address) {
-      alert('Please fill in the required shipping information');
+      setAlertMessage('Please fill in the required shipping information');
       return;
     }
     
@@ -151,7 +153,7 @@ const Cart = () => {
     setShowConfirmation(true);
   };
 
-  // Update handleConfirm function to create a new cart first, then create the order
+ 
   const handleConfirm = async (isLater) => {
     setShowConfirmation(false);
     
@@ -164,19 +166,12 @@ const Cart = () => {
       const formattedAddress = `${shippingAddress.name}, ${shippingAddress.address}, ${shippingAddress.city} ${shippingAddress.postalCode}, Phone: ${shippingAddress.phone}${shippingAddress.notes ? `, Notes: ${shippingAddress.notes}` : ''}`;
 
 
-      // First, add a function to calculate the final price with discount
-      const calculateFinalPrice = (subtotal) => {
-        const tax = subtotal * 0.1;
-        // Cap discount at 15000
-        const discount = 15000;
-        return parseFloat((subtotal + tax - discount).toFixed(2));
-      };
+      
 
-      // Then update the orderData object in handleConfirm function
       const orderData = {
         userId: parseInt(currentUserId),
         cartId: parseInt(cartId),
-        totalPrice: totalPrice * 1.1 - 15000, // Match the displayed grand total calculation
+        totalPrice: totalPrice === 0 ? 0 : (totalPrice * 1.1 - 15000), // Add check for zero total
         status: isLater ? "Unpaid" : "Processing",
 
         paymentMethod: isLater ? "Pay Later" : "Direct Payment",
@@ -189,7 +184,7 @@ const Cart = () => {
       };
 
 
-      // Create order
+    
 
       const orderResponse = await fetch('https://localhost:7002/api/Orders', {
         method: 'POST',
@@ -210,20 +205,19 @@ const Cart = () => {
       console.log('Order created:', orderResult);
 
 
-      // Update local state with empty cart (since new cart is created by API)
-
+    
       setCartItems([]);
       setTotalPrice(0);
       
-      // Update navbar cart counter
+     
       window.dispatchEvent(new Event('cartUpdated'));
 
 
       if (!isLater) {
-        // Get snap token for payment
-        const nameParts = userName?.split(' ') || ['', '']; // Split name into parts
+       
+        const nameParts = userName?.split(' ') || ['', '']; 
         const firstName = nameParts[0];
-        const lastName = nameParts.slice(1).join(' '); // Join remaining parts as last name
+        const lastName = nameParts.slice(1).join(' '); 
 
         const snapResponse = await fetch('https://localhost:7002/payment/get-snap-token', {
           method: 'POST',
@@ -234,7 +228,7 @@ const Cart = () => {
           body: JSON.stringify({
 
             orderId: orderResult.id,
-            grossAmount: parseFloat((totalPrice * 1.1 - 15000).toFixed(2)),
+            grossAmount: totalPrice === 0 ? 0 : parseFloat((totalPrice * 1.1 - 15000).toFixed(2)),
             firstName: firstName,
             lastName: firstName,
             email: shippingAddress.email || '',
@@ -256,11 +250,11 @@ const Cart = () => {
 
     } catch (error) {
       console.error('Error during checkout:', error);
-      alert(`Failed to process order: ${error.message}`);
+      setAlertMessage(`Failed to process order: ${error.message}`);
     }
   };
 
-  // Add this function at the top of your component, after the const Cart = () => { line
+  
   const getCategoryName = (categoryId) => {
     switch (categoryId) {
       case 1:
@@ -274,7 +268,7 @@ const Cart = () => {
     }
   };
 
-  // Show loading and error states
+ 
   if (loading) {
     return (
       <div className="bg-[#f2d9b1] min-h-screen flex items-center justify-center">
@@ -296,7 +290,7 @@ const Cart = () => {
       <Navbar cartCount={cartItems.length} />
       <div className="relative flex-1 bg-[#4a2b1b]">
         <div className="flex">
-          {/* Left section - Cart and Shipping - Add right margin to create space */}
+         
           <div className="flex-1 pr-[450px]">
             <div className="mt-20">
               <div className="bg-[#f2d9b1] rounded-tr-[40px] p-8">
@@ -307,88 +301,102 @@ const Cart = () => {
               </div>
 
               <div className="bg-white p-8">
-                {/* Cart items */}
-                <div className="space-y-4 mb-8">
-                  {/* Labels header */}
-                  <div className="flex items-center px-6">
-                    <div className="w-[250px]"></div> {/* Space for product info */}
-
-                  </div>
-
-                  {/* Cart items */}
-                  {cartItems.map((item) => (
-                    <div key={item.id} 
-                      className="flex items-center bg-white rounded-[30px] p-6 shadow-sm border border-[#f2d9b1]"
+                {cartItems.length === 0 ? (
+                 
+                  <div className="flex flex-col items-center justify-center py-16 px-4">
+                    <div className="text-8xl mb-6">🛒</div>
+                    <h2 className="text-2xl font-bold text-[#4a2b1b] mb-3">Your Cart is Empty</h2>
+                    <p className="text-[#7c5a3a] mb-8 text-center">Time to fill it with some delicious treats!</p>
+                    <button
+                      onClick={() => navigate('/menu')}
+                      className="px-8 py-3 bg-[#4a2b1b] text-white rounded-full hover:bg-[#2a1b0b] transition-colors"
                     >
-                      {/* Product info - Left side */}
-                      <div className="flex items-center w-[250px]">
-                        <img 
-                          src={item.imageUrl} 
-                          alt={item.productName}
-                          className="w-16 h-16 rounded-full object-cover mr-4"
-                        />
-                        <div>
-                          <h3 className="font-bold text-[#2d1a0e] text-lg">{item.productName}</h3>
-                          <div className="text-sm text-[#7c5a3a]">{getCategoryName(item.categoryId)}</div>
-                        </div>
-                      </div>
-                      
-                      {/* Right side content with labels */}
-                      <div className="flex-1 flex items-center">
-                        <div className="flex-1 flex items-center justify-between px-4">
-                          {/* Quantity section */}
-                          <div className="flex flex-col items-center">
-                            <span className="text-sm font-bold text-[#2b2b2b] mb-2">Quantity</span>
-                            <div className="flex items-center">
-                              <button
-                                className="w-6 h-6 rounded-full bg-[#4a2b1b] flex items-center justify-center hover:opacity-90 text-white font-bold text-sm"
-                                onClick={() => updateQuantity(item.productId, Math.max(0, item.quantity - 1))}
-                              >
-                                -
-                              </button>
-                              <span className="mx-4 w-8 text-center font-bold text-[#4a2b1b]">{item.quantity}</span>
-                              <button
-                                className="w-6 h-6 rounded-full bg-[#4a2b1b] flex items-center justify-center hover:opacity-90 text-white font-bold text-sm"
-                                onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
+                      Browse Menu
+                    </button>
+                  </div>
+                ) : (
+                
+                  <div className="space-y-4 mb-8">
+                    
+                    <div className="flex items-center px-6">
+                      <div className="w-[250px]"></div> 
 
-                          {/* Price section */}
-                          <div className="flex flex-col items-center mx-8">
-                            <span className="text-sm font-bold text-[#2b2b2b] mb-2">Price</span>
-                            <span className="text-[#4a2b1b] font-bold">
-                              Rp {new Intl.NumberFormat('id-ID').format(item.price)}
-                            </span>
-                          </div>
-
-                          {/* Total section */}
-                          <div className="flex flex-col items-center mx-8">
-                            <span className="text-sm font-bold text-[#2b2b2b] mb-2">Total</span>
-                            <span className="text-[#4a2b1b] font-bold">
-                              Rp {new Intl.NumberFormat('id-ID').format(item.price * item.quantity)}
-                            </span>
-                          </div>
-
-                          {/* Remove button */}
-                          <button
-                            onClick={() => updateQuantity(item.productId, 0)}
-                            className="px-6 py-2 text-[#9a2b1b] border border-[#9a2b1b] rounded-full hover:bg-[#fff1e6] transition-colors text-sm"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
                     </div>
-                  ))}
-                </div>
 
-                {/* Shipping & Payment sections with similar rounded style */}
+                  
+                    {cartItems.map((item) => (
+                      <div key={item.id} 
+                        className="flex items-center bg-white rounded-[30px] p-6 shadow-sm border border-[#f2d9b1]"
+                      >
+                       
+                        <div className="flex items-center w-[250px]">
+                          <img 
+                            src={item.imageUrl} 
+                            alt={item.productName}
+                            className="w-16 h-16 rounded-full object-cover mr-4"
+                          />
+                          <div>
+                            <h3 className="font-bold text-[#2d1a0e] text-lg">{item.productName}</h3>
+                            <div className="text-sm text-[#7c5a3a]">{getCategoryName(item.categoryId)}</div>
+                          </div>
+                        </div>
+                        
+                       
+                        <div className="flex-1 flex items-center">
+                          <div className="flex-1 flex items-center justify-between px-4">
+                          
+                            <div className="flex flex-col items-center">
+                              <span className="text-sm font-bold text-[#2b2b2b] mb-2">Quantity</span>
+                              <div className="flex items-center">
+                                <button
+                                  className="w-6 h-6 rounded-full bg-[#4a2b1b] flex items-center justify-center hover:opacity-90 text-white font-bold text-sm"
+                                  onClick={() => updateQuantity(item.productId, Math.max(0, item.quantity - 1))}
+                                >
+                                  -
+                                </button>
+                                <span className="mx-4 w-8 text-center font-bold text-[#4a2b1b]">{item.quantity}</span>
+                                <button
+                                  className="w-6 h-6 rounded-full bg-[#4a2b1b] flex items-center justify-center hover:opacity-90 text-white font-bold text-sm"
+                                  onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                                >
+                                  +
+                                </button>
+                              </div>
+                            </div>
+
+                           
+                            <div className="flex flex-col items-center mx-8">
+                              <span className="text-sm font-bold text-[#2b2b2b] mb-2">Price</span>
+                              <span className="text-[#4a2b1b] font-bold">
+                                Rp {new Intl.NumberFormat('id-ID').format(item.price)}
+                              </span>
+                            </div>
+
+                           
+                            <div className="flex flex-col items-center mx-8">
+                              <span className="text-sm font-bold text-[#2b2b2b] mb-2">Total</span>
+                              <span className="text-[#4a2b1b] font-bold">
+                                Rp {new Intl.NumberFormat('id-ID').format(item.price * item.quantity)}
+                              </span>
+                            </div>
+
+                          
+                            <button
+                              onClick={() => updateQuantity(item.productId, 0)}
+                              className="px-6 py-2 text-[#9a2b1b] border border-[#9a2b1b] rounded-full hover:bg-[#fff1e6] transition-colors text-sm"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+               
                 <div className="space-y-6">
                   <div className="flex gap-6">
-                    {/* Shipping Address - Left Side */}
+                    
                     <div className="flex-1 bg-white rounded-[30px] p-6 shadow-sm border border-[#f2d9b1]">
                       <h2 className="text-xl font-bold mb-4">Shipping Address</h2>
                       <div className="space-y-4">
@@ -491,10 +499,10 @@ const Cart = () => {
                       </div>
                     </div>
 
-                    {/* Payment Details - Right Side */}
+                   
                     <div className="flex-1 bg-white rounded-[30px] p-6 shadow-sm border border-[#f2d9b1]">
                       <h2 className="text-xl font-bold mb-4">Payment Details</h2>
-                      {/* Promo section */}
+                     
                       <div className="border border-[#e6d5c5] rounded-2xl p-4 mb-6">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">
@@ -511,7 +519,7 @@ const Cart = () => {
                           </svg>
                         </div>
                       </div>
-                      {/* Price breakdown */}
+                      
                       <div className="space-y-3 mb-6">
                         <div className="flex justify-between text-[#2b2b2b]">
                           <span>Receipt Number</span>
@@ -536,24 +544,26 @@ const Cart = () => {
                           </span>
                         </div>
                       </div>
-                      {/* Grand Total */}
+                      
                       <div className="mb-6">
                         <div className="flex flex-col items-start">
                           <span className="font-bold text-[#2b2b2b] text-lg">Grand Total</span>
                           <span className="text-3xl font-bold text-[#4a2b1b]">
-                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalPrice * 1.1 - 15000)}
+                            {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(
+                              totalPrice === 0 ? 0 : (totalPrice * 1.1 - 15000)
+                            )}
                           </span>
                         </div>
                       </div>
 
-                      {/* Checkout button */}
+                      
                       <button 
                         onClick={handleCheckout}
                         className="w-full bg-[#4a2b1b] hover:bg-[#2a1b0b] transition-colors duration-200 text-white py-3 rounded-xl text-lg font-semibold"
                       >
                         Checkout
                       </button>
-                      {/* Confirmation Dialog */}
+                      
                       {showConfirmation && (
                         <div className="fixed inset-0 backdrop-blur-[10px] flex items-center justify-center z-50">
                           <div className="bg-white/100 rounded-2xl p-6 max-w-md w-full mx-4 shadow-lg">
@@ -576,7 +586,7 @@ const Cart = () => {
                               <button
 
                                 onClick={async () => {
-                                  await handleConfirm(false); // This triggers the QR code generation
+                                  await handleConfirm(false); 
                                 }}
 
                                 className="px-4 py-2 bg-[#9a2b1b] text-white rounded-full hover:bg-[#2a1b0b]"
@@ -588,7 +598,7 @@ const Cart = () => {
                         </div>
                       )}
 
-                      {/* QR Code Popup */}
+                      
                       {showQRCode && iframeUrl && (
                         <div className="fixed inset-0 backdrop-blur-[10px] flex items-center justify-center z-50">
                           <div className="bg-white/100 rounded-2xl p-6 w-[90%] max-w-2xl mx-4 shadow-lg">
@@ -624,8 +634,8 @@ const Cart = () => {
           </div>
         </div>
 
-        {/* Right section - Recommended Items */}
-        <div className="w-[400px] absolute right-0 top-0"> {/* Added right-8 to move it 2rem from the right edge */}
+        
+        <div className="w-[400px] absolute right-0 top-0"> 
           <div className="bg-[#f2d9b1] min-h-screen rounded-bl-[40px]">
             <div className="bg-white p-6 h-[600px]">
               <h2 className="text-xl font-bold mb-4">Recommended For You</h2>
@@ -656,7 +666,16 @@ const Cart = () => {
           </div>
         </div>
       </div>
+      <ChatBot />
       <Footer />
+      
+      
+      {alertMessage && (
+        <Alert 
+          message={alertMessage}
+          onClose={() => setAlertMessage('')}
+        />
+      )}
     </div>
   );
 }

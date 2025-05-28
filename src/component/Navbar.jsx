@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { Search, Menu, ChevronDown, Home, ShoppingCart, ClipboardList, LogIn } from 'lucide-react';
+import { Search, Menu, ChevronDown, Home, ShoppingCart, ClipboardList, LogIn, User } from 'lucide-react';
 
 import { Link, useNavigate } from 'react-router-dom';
 import LogoNavbar from '../assets/LogoNavbar.png';
@@ -39,26 +39,30 @@ const Navbar = ({ cartCount = 0 }) => {
     }
   }, [userId]);
 
-  // Initial fetch and event listener setup
+  
   useEffect(() => {
     fetchCartData();
 
-    // Set up event listener for cart updates
+    
     window.addEventListener('cartUpdated', fetchCartData);
 
-    // Cleanup
+
     return () => {
       window.removeEventListener('cartUpdated', fetchCartData);
     };
   }, [fetchCartData]);
 
   const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      navigate(`/menu?search=${encodeURIComponent(searchTerm.trim())}`);
-      setSearchTerm('');
-    }
-  };
+  e.preventDefault();
+  if (!searchTerm.trim()) {
+    
+    navigate('/menu');
+    setSearchTerm('');
+    return;
+  }
+  navigate(`/menu?search=${encodeURIComponent(searchTerm.trim())}`);
+  setSearchTerm('');
+};
 
   const handleLogout = () => {
     localStorage.removeItem('userId');
@@ -70,7 +74,7 @@ const Navbar = ({ cartCount = 0 }) => {
     <nav className="bg-[#f2d9b1] shadow-lg fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
+     
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <img
@@ -81,7 +85,7 @@ const Navbar = ({ cartCount = 0 }) => {
             </div>
           </div>
 
-          {/* Search Bar */}
+         
           <div className="flex-1 max-w-md mx-8">
             <form onSubmit={handleSearch} className="relative">
               <input
@@ -100,22 +104,22 @@ const Navbar = ({ cartCount = 0 }) => {
             </form>
           </div>
 
-          {/* Navigation Items */}
+       
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              {/* Menu */}
+           
               <Link to="/menu" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">MENU</Link>
-              {/* Fundraising */}
+              
               <Link to="/fundraising" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">FUNDRAISING</Link>
 
-              {/* About Us */}
+          
               <Link to="/about" className="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors">ABOUT US</Link>
             </div>
           </div>
 
-          {/* Right side icons and auth */}
+          
           <div className="hidden md:flex items-center space-x-4 ml-6">
-            {/* Home icon */}
+          
             <Link 
               to="/"
               className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors"
@@ -123,7 +127,7 @@ const Navbar = ({ cartCount = 0 }) => {
               <Home className="w-5 h-5" />
             </Link>
 
-            {/* Order icon */}
+            
             <Link 
               to="/orders"
               className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors"
@@ -131,11 +135,18 @@ const Navbar = ({ cartCount = 0 }) => {
               <ClipboardList className="w-5 h-5" />
             </Link>
 
-            {/* Cart button with badge (previously User) */}
+            <Link 
+              to="/account"
+              className="p-2 text-gray-600 hover:text-gray-800 hover:bg-amber-200 rounded-full transition-colors"
+            >
+              <User className="w-5 h-5" />
+            </Link>
+
+            
             <button 
             onClick={() => {
               if (currentCartCount === 0) {
-                setShowEmptyCartPopup(true); // Tampilkan pop-up
+                setShowEmptyCartPopup(true);
               } else {
                 navigate('/cart');
               }
@@ -152,7 +163,7 @@ const Navbar = ({ cartCount = 0 }) => {
               )}
             </button>
             
-            {/* Auth buttons */}
+       
             <div className="flex items-center space-x-2 text-sm">
               {isLoggedIn ? (
                 <div className="flex items-center space-x-6">
@@ -184,7 +195,7 @@ const Navbar = ({ cartCount = 0 }) => {
             </div>
           </div>
 
-          {/* Mobile menu button */}
+       
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -195,11 +206,11 @@ const Navbar = ({ cartCount = 0 }) => {
           </div>
         </div>
 
-        {/* Mobile menu */}
+  
       {isMenuOpen && (
         <div className="fixed inset-y-0 right-0 z-50 w-64 bg-gradient-to-b from-[#f2d9b1] to-white shadow-2xl p-5 rounded-l-2xl overflow-y-auto transition-transform duration-300">
           
-          {/* Header */}
+   
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold text-[#4a2b1b]">Creepy Donut</h2>
             <button
@@ -210,7 +221,7 @@ const Navbar = ({ cartCount = 0 }) => {
             </button>
           </div>
 
-          {/* Navigation Links */}
+        
           <nav className="space-y-3">
             <Link 
               to="/menu" 
@@ -272,7 +283,7 @@ const Navbar = ({ cartCount = 0 }) => {
       )}
       </div>
       {showEmptyCartPopup && (
-      <div className="fixed inset-0 backdrop-blur-[10px] flex items-center justify-center z-50">
+      <div className="fixed inset-0 backdrop-blur-[10px] bg-black/40 flex items-center justify-center z-50">
         <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full text-center">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">
             You haven't added any items yet.

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-// Import the same background images as Login
 import LoginBG from '../assets/LoginBG.png';
 import LoginBG2 from '../assets/LoginBG2.png';
 import LoginBG3 from '../assets/LoginBG3.png';
@@ -15,7 +14,7 @@ function Register() {
   
   const navigate = useNavigate();
 
-  // Update backgroundImages array in Register component
+ 
   const backgroundImages = [
     LoginBG,
     LoginBG2,
@@ -55,7 +54,7 @@ function Register() {
 
       if (response.ok) {
         alert('Registration successful! Please log in.');
-        navigate('/login'); // <-- Redirect to login page
+        navigate('/login'); 
       } else {
         const errorData = await response.json();
         alert(errorData.message || 'Registration failed.');
@@ -67,13 +66,13 @@ function Register() {
   };
 
   const handleSocialLogin = (provider) => {
-    // Add your social login logic here
+    
     console.log(`Register with ${provider}`);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
-      {/* Background Image Slideshow */}
+     
       {backgroundImages.map((image, index) => (
         <div
           key={index}
@@ -86,23 +85,23 @@ function Register() {
         />
       ))}
 
-      {/* Overlay */}
+      
       <div className="absolute inset-0 bg-black/30 z-[1]" />
 
-      {/* Update z-index for decorative elements */}
+      
       <div className="absolute top-20 left-20 w-32 h-32 rounded-full bg-white/10 backdrop-blur-sm z-[2]"></div>
       <div className="absolute bottom-32 right-32 w-24 h-24 rounded-full bg-white/15 backdrop-blur-sm z-[2]"></div>
       <div className="absolute top-1/3 right-20 w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm z-[2]"></div>
       <div className="absolute bottom-20 left-1/4 w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm z-[2]"></div>
 
-      {/* Register Form Container - Update z-index */}
+     
       <div className="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-md mx-4 z-[3]">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Register</h1>
         </div>
 
         <div className="space-y-6">
-          {/* Email/Phone Input */}
+         
           <div>
             <div className="block text-sm font-medium text-gray-700 mb-2">
               Email / Phone
@@ -116,7 +115,7 @@ function Register() {
             />
           </div>
 
-          {/* Password Input */}
+          
           <div>
             <div className="block text-sm font-medium text-gray-700 mb-2">
               Password
@@ -139,7 +138,7 @@ function Register() {
             </div>
           </div>
 
-          {/* Register Button */}
+          
           <button
             onClick={handleRegister}
             className="w-full bg-[#F2D9B1] hover:bg-[#6C4F36] text-[#6C4F36] hover:text-[#F2D9B1] font-semibold py-3 px-4 rounded-full transition-all duration-300 transform hover:scale-[1.02] shadow-lg"
@@ -148,14 +147,14 @@ function Register() {
           </button>
         </div>
 
-        {/* Social Login Section */}
+       
         <div className="mt-8">
           <div className="text-center mb-6">
             <p className="text-gray-600 text-sm">Or Sign-up Using:</p>
           </div>
           
           <div className="flex justify-center space-x-4 mb-6">
-            {/* X (Twitter) */}
+          
             <button
               onClick={() => handleSocialLogin('twitter')}
               className="w-12 h-12 bg-black rounded-full flex items-center justify-center hover:bg-gray-800 transition-colors"
@@ -165,7 +164,7 @@ function Register() {
               </svg>
             </button>
 
-            {/* Facebook */}
+          
             <button
               onClick={() => handleSocialLogin('facebook')}
               className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors"
@@ -175,7 +174,7 @@ function Register() {
               </svg>
             </button>
 
-            {/* LINE */}
+            
             <button
               onClick={() => handleSocialLogin('line')}
               className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors"
@@ -185,7 +184,7 @@ function Register() {
               </svg>
             </button>
 
-            {/* Google */}
+           
             <button
               onClick={() => handleSocialLogin('google')}
               className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
@@ -199,7 +198,7 @@ function Register() {
             </button>
           </div>
 
-          {/* Sign In Link */}
+          
           <div className="text-center">
             <p className="text-gray-600 text-sm mb-2">Or Sign-in Using:</p>
             <button
